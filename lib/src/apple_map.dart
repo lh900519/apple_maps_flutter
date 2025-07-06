@@ -22,6 +22,7 @@ class AppleMap extends StatefulWidget {
     this.gestureRecognizers,
     this.compassEnabled = true,
     this.trafficEnabled = false,
+    this.darkEnabled = false,
     this.mapType = MapType.standard,
     this.minMaxZoomPreference = MinMaxZoomPreference.unbounded,
     this.trackingMode = TrackingMode.none,
@@ -55,6 +56,9 @@ class AppleMap extends StatefulWidget {
 
   /// True if the map should display the current traffic.
   final bool trafficEnabled;
+
+  /// Dark Mode
+  final bool darkEnabled;
 
   /// Type of map tiles to be rendered.
   final MapType mapType;
@@ -332,6 +336,7 @@ class _AppleMapOptions {
     this.compassEnabled,
     this.trafficEnabled,
     this.mapType,
+    this.darkEnabled,
     this.minMaxZoomPreference,
     this.rotateGesturesEnabled,
     this.scrollGesturesEnabled,
@@ -349,6 +354,7 @@ class _AppleMapOptions {
       compassEnabled: map.compassEnabled,
       trafficEnabled: map.trafficEnabled,
       mapType: map.mapType,
+      darkEnabled: map.darkEnabled,
       minMaxZoomPreference: map.minMaxZoomPreference,
       rotateGesturesEnabled: map.rotateGesturesEnabled,
       scrollGesturesEnabled: map.scrollGesturesEnabled,
@@ -367,6 +373,8 @@ class _AppleMapOptions {
   final bool? trafficEnabled;
 
   final MapType? mapType;
+
+  final bool? darkEnabled;
 
   final MinMaxZoomPreference? minMaxZoomPreference;
 
@@ -400,6 +408,7 @@ class _AppleMapOptions {
     addIfNonNull('compassEnabled', compassEnabled);
     addIfNonNull('trafficEnabled', trafficEnabled);
     addIfNonNull('mapType', mapType?.index);
+    addIfNonNull('darkEnabled', darkEnabled);
     addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?._toJson());
     addIfNonNull('rotateGesturesEnabled', rotateGesturesEnabled);
     addIfNonNull('scrollGesturesEnabled', scrollGesturesEnabled);

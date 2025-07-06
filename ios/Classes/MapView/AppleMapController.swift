@@ -28,6 +28,13 @@ public class AppleMapController: NSObject, FlutterPlatformView {
         
         // To stop the odd movement of the Apple logo.
         self.contentView = UIScrollView()
+        
+        if let darkEnabled: Bool = options["darkEnabled"] as? Bool, darkEnabled {
+          if #available(iOS 13.0, *) {
+              self.contentView.overrideUserInterfaceStyle = .dark
+          }
+        }
+      
         self.contentView.addSubview(mapView)
         mapView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
         

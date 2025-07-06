@@ -238,17 +238,24 @@ class FlutterMapView: MKMapView, UIGestureRecognizerDelegate {
            _locationButton.removeFromSuperview()
         }
         if visible {
+            // if #available(iOS 17, *) {
+            //  self.showsUserTrackingButton = true
+            // }
+          
             let buttonContainer = UIView()
             if #available(iOS 9.0, *) {
                 buttonContainer.translatesAutoresizingMaskIntoConstraints = false
-                buttonContainer.widthAnchor.constraint(equalToConstant: 35).isActive = true
-                buttonContainer.heightAnchor.constraint(equalToConstant: 35).isActive = true
-                buttonContainer.layer.cornerRadius = 8
+                buttonContainer.widthAnchor.constraint(equalToConstant: 42).isActive = true
+                buttonContainer.heightAnchor.constraint(equalToConstant: 42).isActive = true
+                buttonContainer.layer.cornerRadius = 20
                 buttonContainer.tag = BUTTON_IDS.LOCATION.rawValue
                 buttonContainer.backgroundColor = .white
                 if #available(iOS 11.0, *) {
                     let userTrackingButton = MKUserTrackingButton(mapView: self)
                     userTrackingButton.translatesAutoresizingMaskIntoConstraints = false
+                    userTrackingButton.layer.cornerRadius = 20
+                    userTrackingButton.layer.masksToBounds = true
+                  
                     buttonContainer.addSubview(userTrackingButton)
                     userTrackingButton.centerXAnchor.constraint(equalTo: buttonContainer.centerXAnchor).isActive = true
                     userTrackingButton.centerYAnchor.constraint(equalTo: buttonContainer.centerYAnchor).isActive = true
@@ -265,7 +272,7 @@ class FlutterMapView: MKMapView, UIGestureRecognizerDelegate {
                 }
                 self.addSubview(buttonContainer)
                 buttonContainer.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5 - self.layoutMargins.right).isActive = true
-                buttonContainer.topAnchor.constraint(equalTo: self.topAnchor, constant: self.showsCompass ? 50 : 5 + self.layoutMargins.top).isActive = true
+                buttonContainer.topAnchor.constraint(equalTo: self.topAnchor, constant: self.showsCompass ? 75 : 5 + self.layoutMargins.top).isActive = true
             }
         }
     }
