@@ -48,7 +48,8 @@ extension AppleMapController: AnnotationDelegate {
             if #available(iOS 11.0, *), annotation.icon.iconType == IconType.MARKER {
                 annotationView = getMarkerAnnotationView(annotation: annotation, id: identifier)
             } else if annotation.icon.iconType == .CUSTOM_FROM_ASSET || annotation.icon.iconType == .CUSTOM_FROM_BYTES {
-                annotationView = getCustomAnnotationView(annotation: annotation, id: identifier)
+                // annotationView = getCustomAnnotationView(annotation: annotation, id: identifier)
+                annotationView = getCustomAnnotation2View(annotation: annotation, id: identifier)
             } else {
                 annotationView = getPinAnnotationView(annotation: annotation, id: identifier)
             }
@@ -276,6 +277,18 @@ extension AppleMapController: AnnotationDelegate {
         }
         annotationView.image = annotation.icon.image
         annotationView.stickyZPosition = annotation.zIndex
+        return annotationView
+    }
+  
+    private func getCustomAnnotation2View(annotation: FlutterAnnotation, id: String) -> FlutterAnnotation2View {
+      var annotationView: FlutterAnnotation2View
+            self.mapView.register(FlutterAnnotation2View.self, forAnnotationViewWithReuseIdentifier: id)
+          annotationView = self.mapView.dequeueReusableAnnotationView(withIdentifier: id, for: annotation) as! FlutterAnnotation2View
+      
+        annotationView.configure(with: annotation)
+        // annotationView.image = annotation.icon.image
+//        annotationView.stickyZPosition = annotation.zIndex
+      
         return annotationView
     }
 
