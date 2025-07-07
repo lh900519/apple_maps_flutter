@@ -39,7 +39,7 @@ class FlutterAnnotation2View: MKAnnotationView {
     containerView.layer.cornerRadius = 10
     containerView.layer.shadowColor = UIColor.black.cgColor
     containerView.layer.shadowOffset = CGSize(width: 0, height: 2)
-    containerView.layer.shadowOpacity = 0.3
+    containerView.layer.shadowOpacity = 0.1
     containerView.layer.shadowRadius = 4
     // containerView.layer.borderWidth = 1
     // containerView.layer.borderColor = UIColor.systemBlue.cgColor
