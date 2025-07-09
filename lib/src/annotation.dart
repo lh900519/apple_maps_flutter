@@ -150,6 +150,7 @@ class Annotation {
     this.draggable = false,
     this.icon = BitmapDescriptor.defaultAnnotation,
     this.infoWindow = InfoWindow.noText,
+    this.canShowCallout = true,
     this.position = const LatLng(0.0, 0.0),
     this.onTap,
     this.visible = true,
@@ -177,6 +178,9 @@ class Annotation {
 
   /// A description of the bitmap used to draw the annotation icon.
   final BitmapDescriptor icon;
+
+  /// True if the annotation is draggable by user touch events.
+  final bool canShowCallout;
 
   /// An Apple Maps InfoWindow.
   ///
@@ -209,6 +213,7 @@ class Annotation {
     bool? consumeTapEventsParam,
     bool? draggableParam,
     BitmapDescriptor? iconParam,
+    bool? canShowCalloutParam,
     InfoWindow? infoWindowParam,
     LatLng? positionParam,
     bool? visibleParam,
@@ -222,6 +227,7 @@ class Annotation {
       alpha: alphaParam ?? alpha,
       draggable: draggableParam ?? draggable,
       icon: iconParam ?? icon,
+      canShowCallout: canShowCalloutParam ?? canShowCallout,
       infoWindow: infoWindowParam ?? infoWindow,
       position: positionParam ?? position,
       onTap: onTapParam ?? onTap,
@@ -245,6 +251,7 @@ class Annotation {
     addIfPresent('anchor', _offsetToJson(anchor));
     addIfPresent('draggable', draggable);
     addIfPresent('icon', icon._toJson());
+    addIfPresent('canShowCallout', canShowCallout);
     addIfPresent('infoWindow', infoWindow._toJson());
     addIfPresent('visible', visible);
     addIfPresent('position', position._toJson());
@@ -262,6 +269,7 @@ class Annotation {
         anchor == typedOther.anchor &&
         draggable == typedOther.draggable &&
         icon == typedOther.icon &&
+        canShowCallout == typedOther.canShowCallout &&
         infoWindow == typedOther.infoWindow &&
         position == typedOther.position &&
         visible == typedOther.visible &&

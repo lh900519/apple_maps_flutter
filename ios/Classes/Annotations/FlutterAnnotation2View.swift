@@ -32,7 +32,8 @@ class FlutterAnnotation2View: MKAnnotationView {
 
   private func setupView() {
     // 设置基本属性
-    canShowCallout = true
+    canShowCallout = true // 点击是否显示小窗
+    frame = CGRect(x: 0, y: 0, width: 120, height: 40)
 
     // 设置容器视图 - 白色背景
     containerView.backgroundColor = UIColor.white

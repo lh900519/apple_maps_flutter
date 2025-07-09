@@ -21,8 +21,8 @@ extension AppleMapController: AnnotationDelegate {
             } else {
                 annotation.selectedProgrammatically = false
             }
-
-            if annotation.infoWindowConsumesTapEvents {
+            
+            if (annotation.canShowCallout ?? true) && annotation.infoWindowConsumesTapEvents {
                 let tapGestureRecognizer = InfoWindowTapGestureRecognizer(target: self, action: #selector(onCalloutTapped))
                 tapGestureRecognizer.annotationId = annotation.id
                 tapGestureRecognizer.annotationView = view
@@ -73,7 +73,7 @@ extension AppleMapController: AnnotationDelegate {
                 annotationView!.centerOffset = CGPoint(x: x, y: y)
             }
         }
-        annotationView!.canShowCallout = true
+        annotationView!.canShowCallout = annotation.canShowCallout ?? true
         annotationView!.alpha = CGFloat(annotation.alpha ?? 1.00)
         annotationView!.isDraggable = annotation.isDraggable ?? false
 
@@ -281,13 +281,11 @@ extension AppleMapController: AnnotationDelegate {
     }
   
     private func getCustomAnnotation2View(annotation: FlutterAnnotation, id: String) -> FlutterAnnotation2View {
-      var annotationView: FlutterAnnotation2View
-            self.mapView.register(FlutterAnnotation2View.self, forAnnotationViewWithReuseIdentifier: id)
-          annotationView = self.mapView.dequeueReusableAnnotationView(withIdentifier: id, for: annotation) as! FlutterAnnotation2View
+        var annotationView: FlutterAnnotation2View
+        self.mapView.register(FlutterAnnotation2View.self, forAnnotationViewWithReuseIdentifier: id)
+        annotationView = self.mapView.dequeueReusableAnnotationView(withIdentifier: id, for: annotation) as! FlutterAnnotation2View
       
         annotationView.configure(with: annotation)
-        // annotationView.image = annotation.icon.image
-//        annotationView.stickyZPosition = annotation.zIndex
       
         return annotationView
     }
