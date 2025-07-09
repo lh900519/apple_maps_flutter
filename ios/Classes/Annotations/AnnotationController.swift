@@ -28,6 +28,25 @@ extension AppleMapController: AnnotationDelegate {
                 tapGestureRecognizer.annotationView = view
                 view.addGestureRecognizer(tapGestureRecognizer)
             }
+            
+            // 更新视图以添加边框
+            if let annotationView = view as? FlutterAnnotation2View {
+                annotationView.updateSelected(with: true)
+                annotationView.setNeedsLayout()
+            }
+        }
+    }
+    
+    // 取消选中时重置 isSelected 并移除边框
+    public func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+        if let annotation: FlutterAnnotation = view.annotation as? FlutterAnnotation  {
+            annotation.selectedProgrammatically = false
+            
+            // 更新视图以移除边框
+            if let annotationView = view as? FlutterAnnotation2View {
+                annotationView.updateSelected(with: false)
+                annotationView.setNeedsLayout()
+            }
         }
     }
 

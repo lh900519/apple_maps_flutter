@@ -67,7 +67,7 @@ class FlutterAnnotation2View: MKAnnotationView {
 
     // 添加子视图
     addSubview(containerView)
-    addSubview(triangleView)
+    containerView.addSubview(triangleView)
     containerView.addSubview(imageView)
     containerView.addSubview(titleLabel)
 
@@ -125,5 +125,19 @@ class FlutterAnnotation2View: MKAnnotationView {
 
     // 设置标题
     titleLabel.text = annotation.title
+  }
+
+  // 根据 annotation 的 isSelected 属性设置边框
+  func updateSelected(with isSelected: Bool) {
+    UIView.animate(withDuration: 0.3) {
+      // self.containerView.alpha = 1
+      if isSelected {
+        NSLog("更新视图 ☑️ 选中")
+        self.containerView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+      } else {
+        NSLog("更新视图 ❌ 未选中")
+        self.containerView.transform = .identity
+      }
+    }
   }
 }
