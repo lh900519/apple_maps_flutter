@@ -271,8 +271,9 @@ class FlutterMapView: MKMapView, UIGestureRecognizerDelegate {
                     locationButton.centerYAnchor.constraint(equalTo: buttonContainer.centerYAnchor).isActive = true
                 }
                 self.addSubview(buttonContainer)
+                NSLog("\(UIDevice.xp_safeDistanceTop()), \(UIDevice.xp_statusBarHeight())")
                 buttonContainer.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -5 - self.layoutMargins.right).isActive = true
-                buttonContainer.topAnchor.constraint(equalTo: self.topAnchor, constant: self.showsCompass ? 75 : 5 + self.layoutMargins.top).isActive = true
+                buttonContainer.topAnchor.constraint(equalTo: self.topAnchor, constant: self.showsCompass ? (UIDevice.xp_safeDistanceTop() + 60) : 5 + self.layoutMargins.top).isActive = true
             }
         }
     }
@@ -355,5 +356,42 @@ class FlutterMapView: MKMapView, UIGestureRecognizerDelegate {
         let xDist = a.x - b.x
         let yDist = a.y - b.y
         return CGFloat(sqrt(xDist * xDist + yDist * yDist))
+    }
+}
+
+extension UIDevice {
+    var hasNotch: Bool {
+        if #available(iOS 11.0, *) {
+            return UIApplication.shared.windows.first?.safeAreaInsets.top ?? 0 > 0
+        }
+        return false
+    }
+    
+    /// 顶部安全区高度
+    static func xp_safeDistanceTop() -> CGFloat {
+        if #available(iOS 13.0, *) {
+            let scene = UIApplication.shared.connectedScenes.first
+            guard let windowScene = scene as? UIWindowScene else { return 0 }
+            guard let window = windowScene.windows.first else { return 0 }
+            return window.safeAreaInsets.top
+        } else if #available(iOS 11.0, *) {
+            guard let window = UIApplication.shared.windows.first else { return 0 }
+            return window.safeAreaInsets.top
+        }
+        return 0;
+    }
+    
+    /// 顶部状态栏高度（包括安全区）
+    static func xp_statusBarHeight() -> CGFloat {
+        var statusBarHeight: CGFloat = 0
+        if #available(iOS 13.0, *) {
+            let scene = UIApplication.shared.connectedScenes.first
+            guard let windowScene = scene as? UIWindowScene else { return 0 }
+            guard let statusBarManager = windowScene.statusBarManager else { return 0 }
+            statusBarHeight = statusBarManager.statusBarFrame.height
+        } else {
+            statusBarHeight = UIApplication.shared.statusBarFrame.height
+        }
+        return statusBarHeight
     }
 }
