@@ -47,9 +47,9 @@ class FlutterAnnotation2View: MKAnnotationView {
 
     // 设置图像视图 - 左侧
     imageView.contentMode = .scaleAspectFit
-    imageView.tintColor = UIColor.systemBlue
-    imageView.backgroundColor = UIColor.systemPink
-    imageView.layer.cornerRadius = 16
+    // imageView.tintColor = UIColor.systemBlue
+    // imageView.backgroundColor = UIColor.systemPink
+    // imageView.layer.cornerRadius = 16
     imageView.layer.masksToBounds = true
 
     // 设置标题标签 - 右侧
@@ -57,6 +57,7 @@ class FlutterAnnotation2View: MKAnnotationView {
     titleLabel.textColor = UIColor.black
     titleLabel.textAlignment = .left
     titleLabel.numberOfLines = 1
+    titleLabel.lineBreakMode = .byTruncatingTail // 尾部省略号
     // titleLabel.text = "我的位置"
 
     // 设置三角形
@@ -106,7 +107,7 @@ class FlutterAnnotation2View: MKAnnotationView {
       // 标题标签约束 - 右侧
       titleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 5),
       titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-      // titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0),
+      titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0),
     ])
   }
 
