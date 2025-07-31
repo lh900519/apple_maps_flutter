@@ -22,7 +22,7 @@ class AppleMap extends StatefulWidget {
     this.gestureRecognizers,
     this.compassEnabled = true,
     this.trafficEnabled = false,
-    this.darkEnabled = false,
+    this.darkEnabled,
     this.mapType = MapType.standard,
     this.minMaxZoomPreference = MinMaxZoomPreference.unbounded,
     this.trackingMode = TrackingMode.none,
@@ -58,7 +58,7 @@ class AppleMap extends StatefulWidget {
   final bool trafficEnabled;
 
   /// Dark Mode
-  final bool darkEnabled;
+  final bool? darkEnabled;
 
   /// Type of map tiles to be rendered.
   final MapType mapType;

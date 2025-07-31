@@ -18,6 +18,7 @@ public class AppleMapController: NSObject, FlutterPlatformView {
     var currentlySelectedAnnotation: String?
     var snapShotOptions: MKMapSnapshotter.Options = MKMapSnapshotter.Options()
     var snapShot: MKMapSnapshotter?
+    var darkEnabled: Bool?
     
     public init(withFrame frame: CGRect, withRegistrar registrar: FlutterPluginRegistrar, withargs args: Dictionary<String, Any> ,withId id: Int64) {
         self.options = args["options"] as! [String: Any]
@@ -29,9 +30,11 @@ public class AppleMapController: NSObject, FlutterPlatformView {
         // To stop the odd movement of the Apple logo.
         self.contentView = UIScrollView()
         
-        if let darkEnabled: Bool = options["darkEnabled"] as? Bool, darkEnabled {
+        // Set Dark Mode
+        if let _darkEnabled: Bool = options["darkEnabled"] as? Bool {
+          darkEnabled = _darkEnabled
           if #available(iOS 13.0, *) {
-              self.contentView.overrideUserInterfaceStyle = .dark
+            self.contentView.overrideUserInterfaceStyle = darkEnabled! ? .dark : .light
           }
         }
       
@@ -323,6 +326,15 @@ extension AppleMapController {
         snapShotOptions.scale = UIScreen.main.scale
         snapShotOptions.showsBuildings = options.showBuildings
         snapShotOptions.showsPointsOfInterest = options.showPointsOfInterest
+      
+        if self.darkEnabled != nil {
+            if #available(iOS 13.0, *) {
+                let traitCollection = UITraitCollection(traitsFrom: [
+                    .init(userInterfaceStyle: self.darkEnabled! ? .dark : .light),
+                ])
+                snapShotOptions.traitCollection = traitCollection
+            }
+        }
         
         // Set MKMapSnapShotOptions to MKMapSnapShotter.
         snapShot = MKMapSnapshotter(options: snapShotOptions)
