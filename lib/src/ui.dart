@@ -6,14 +6,29 @@ part of apple_maps_flutter;
 
 /// Type of map tiles to display.
 enum MapType {
-  /// Normal tiles (traffic and labels, subtle terrain information).
+  /// A street map where MapKit emphasizes your data over the underlying map details.
+  /// MapKit 强调您的数据而不是基础地图详细信息的街道地图。
+  mutedStandard,
+
+  /// A street map that shows the position of all roads and some road names.
+  /// 显示所有道路位置和一些道路名称的街道地图。
   standard,
 
-  /// Satellite imaging tiles (aerial photos)
+  /// Satellite imagery of the area.
+  /// 该地区的卫星图像。
   satellite,
 
-  /// Hybrid tiles (satellite images with some labels/overlays)
+  /// A satellite image of the area with flyover data where available.
+  /// 该地区的卫星图像以及天桥数据（如果可用）。
+  satelliteFlyover,
+
+  /// A satellite image of the area with road and road name information layered on top.
+  /// 该区域的卫星图像，其顶部分层了道路和道路名称信息。
   hybrid,
+
+  /// A hybrid satellite image with flyover data where available.
+  /// 带有天桥数据的混合卫星图像（如果可用）。
+  hybridFlyover
 }
 
 enum TrackingMode {
