@@ -68,7 +68,11 @@ extension AppleMapController: AnnotationDelegate {
                 annotationView = getMarkerAnnotationView(annotation: annotation, id: identifier)
             } else if annotation.icon.iconType == .CUSTOM_FROM_ASSET || annotation.icon.iconType == .CUSTOM_FROM_BYTES {
                 // annotationView = getCustomAnnotationView(annotation: annotation, id: identifier)
+              if let title = annotation.title, !title.isEmpty {
                 annotationView = getCustomAnnotation2View(annotation: annotation, id: identifier)
+              } else {
+                annotationView = getCustomAnnotationView(annotation: annotation, id: identifier)
+              }
             } else {
                 annotationView = getPinAnnotationView(annotation: annotation, id: identifier)
             }
