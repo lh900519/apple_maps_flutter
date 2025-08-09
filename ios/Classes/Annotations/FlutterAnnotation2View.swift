@@ -13,12 +13,11 @@ class FlutterAnnotation2View: MKAnnotationView {
   private let imageView = UIImageView()
   private let titleLabel = UILabel()
   private let triangleView = UIView()
-//  private let triangleView: UIView = {
-//    let view = UIView()
-//    view.backgroundColor = .colorMsgBackground
-//    view.translatesAutoresizingMaskIntoConstraints = false
-//    return view
-//  }()
+  
+  // 容器的宽
+  private let containerWidth: CGFloat = 120
+  // 容器的高
+  private let containerHeight: CGFloat = 40
 
   override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
     super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
@@ -33,7 +32,7 @@ class FlutterAnnotation2View: MKAnnotationView {
   private func setupView() {
     // 设置基本属性
     canShowCallout = true // 点击是否显示小窗
-    frame = CGRect(x: 0, y: 0, width: 120, height: 40)
+    frame = CGRect(x: 0, y: 0, width: containerWidth, height: containerHeight)
 
     // 设置容器视图 - 白色背景
     containerView.backgroundColor = UIColor.white
@@ -71,6 +70,8 @@ class FlutterAnnotation2View: MKAnnotationView {
     containerView.addSubview(triangleView)
     containerView.addSubview(imageView)
     containerView.addSubview(titleLabel)
+    
+    containerView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
 
     // 设置约束
     setupConstraints()
@@ -85,12 +86,12 @@ class FlutterAnnotation2View: MKAnnotationView {
     NSLayoutConstraint.activate([
       // 容器视图约束 - 水平布局，更宽
       // containerView.topAnchor.constraint(equalTo: topAnchor),
-      containerView.topAnchor.constraint(equalTo: topAnchor, constant: -20),
+      containerView.topAnchor.constraint(equalTo: topAnchor, constant: -containerHeight/2),
       containerView.centerXAnchor.constraint(equalTo: centerXAnchor),
       // containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
       // containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-      containerView.widthAnchor.constraint(equalToConstant: 120), // 增加宽度以适应左右布局
-      containerView.heightAnchor.constraint(equalToConstant: 40),
+      containerView.widthAnchor.constraint(equalToConstant: containerWidth), // 增加宽度以适应左右布局
+      containerView.heightAnchor.constraint(equalToConstant: containerHeight),
 
       // 三角形约束
       triangleView.centerXAnchor.constraint(equalTo: centerXAnchor),
@@ -137,7 +138,8 @@ class FlutterAnnotation2View: MKAnnotationView {
         self.containerView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
       } else {
         NSLog("更新视图 ❌ 未选中")
-        self.containerView.transform = .identity
+        // self.containerView.transform = .identity
+        self.containerView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
       }
     }
   }
