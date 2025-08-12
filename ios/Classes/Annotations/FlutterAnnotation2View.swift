@@ -21,6 +21,10 @@ class FlutterAnnotation2View: MKAnnotationView {
   private let imageWidth: CGFloat = 14
   private let imagePadding: CGFloat = 4
   private let labelPadding: CGFloat = 4
+  
+  // 字体大小
+  private let fontSize: CGFloat = 10
+      
 
   // 存储动态宽高约束
   private var containerWidthConstraint: NSLayoutConstraint!
@@ -54,7 +58,7 @@ class FlutterAnnotation2View: MKAnnotationView {
     imageView.layer.masksToBounds = true
 
     // 设置标题标签
-    titleLabel.font = UIFont.systemFont(ofSize: 9, weight: .medium)
+    titleLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .medium)
     titleLabel.textColor = UIColor.black
     titleLabel.textAlignment = .left
     titleLabel.numberOfLines = 2
@@ -72,7 +76,8 @@ class FlutterAnnotation2View: MKAnnotationView {
     containerView.addSubview(imageView)
     containerView.addSubview(titleLabel)
 
-    containerView.transform = CGAffineTransform(scaleX: 1, y: 1)
+    // 初始化为缩放状态，准备动画
+    containerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
 
     // 设置约束
     setupConstraints()
@@ -126,7 +131,7 @@ class FlutterAnnotation2View: MKAnnotationView {
     // 计算文本尺寸
     let maxTextWidth = maxContainerWidth - imageWidth - 2 * imagePadding - 2 * labelPadding
     let maxTextHeight = maxContainerHeight - 2 * imagePadding
-    let textAttributes: [NSAttributedString.Key: Any] = [.font: titleLabel.font!]
+    let textAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: fontSize, weight: .medium)]
     let textSize = (text as NSString).boundingRect(
       with: CGSize(width: maxTextWidth, height: maxTextHeight),
       options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine],
@@ -139,7 +144,7 @@ class FlutterAnnotation2View: MKAnnotationView {
     let newWidth = min(calculatedWidth, maxContainerWidth)
 
     // 计算容器高度（考虑文本行数）
-    let lineHeight = titleLabel.font.lineHeight
+    let lineHeight = titleLabel.font.lineHeight // 使用 titleLabel 的行高
     let numberOfLines = min(ceil(textSize.height / lineHeight), 2) // 最多 2 行
     let calculatedHeight = max(imageWidth, numberOfLines * lineHeight) + 2 * imagePadding
     let newHeight = min(calculatedHeight, maxContainerHeight)
@@ -157,6 +162,9 @@ class FlutterAnnotation2View: MKAnnotationView {
     // 重置尺寸
     containerWidthConstraint.constant = maxContainerWidth
     containerHeightConstraint.constant = maxContainerHeight
+
+    // 重置缩放
+    containerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
   }
 
   func configure(with annotation: FlutterAnnotation) {
@@ -166,10 +174,15 @@ class FlutterAnnotation2View: MKAnnotationView {
 
     // 根据文本更新容器尺寸
     updateContainerSize(for: annotation.title)
+
+    // 添加从小到大的动画
+    UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseInOut, animations: {
+      self.containerView.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+    }, completion: nil)
   }
 
   func updateSelected(with isSelected: Bool) {
-    UIView.animate(withDuration: 0.3) {
+    UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseInOut) {
       if isSelected {
         NSLog("更新视图 ☑️ 选中")
         self.containerView.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
