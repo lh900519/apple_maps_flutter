@@ -15,9 +15,9 @@ class FlutterAnnotation2View: MKAnnotationView {
   private let triangleView = UIView()
   
   // 容器的宽
-  private let containerWidth: CGFloat = 120
+  private let containerWidth: CGFloat = 96
   // 容器的高
-  private let containerHeight: CGFloat = 40
+  private let containerHeight: CGFloat = 32
 
   override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
     super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
@@ -36,7 +36,7 @@ class FlutterAnnotation2View: MKAnnotationView {
 
     // 设置容器视图 - 白色背景
     containerView.backgroundColor = UIColor.white
-    containerView.layer.cornerRadius = 10
+    containerView.layer.cornerRadius = 8
     containerView.layer.shadowColor = UIColor.black.cgColor
     containerView.layer.shadowOffset = CGSize(width: 0, height: 2)
     containerView.layer.shadowOpacity = 0.1
@@ -52,17 +52,17 @@ class FlutterAnnotation2View: MKAnnotationView {
     imageView.layer.masksToBounds = true
 
     // 设置标题标签 - 右侧
-    titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+    titleLabel.font = UIFont.systemFont(ofSize: 10, weight: .medium)
     titleLabel.textColor = UIColor.black
     titleLabel.textAlignment = .left
-    titleLabel.numberOfLines = 1
+    titleLabel.numberOfLines = 2
     titleLabel.lineBreakMode = .byTruncatingTail // 尾部省略号
     // titleLabel.text = "我的位置"
 
     // 设置三角形
     triangleView.backgroundColor = .white
-    triangleView.layer.cornerRadius = 3
-    triangleView.bounds = CGRect(x: 0, y: 0, width: 16, height: 16)
+    triangleView.layer.cornerRadius = 2
+    triangleView.bounds = CGRect(x: 0, y: 0, width: 13, height: 13)
     triangleView.transform = CGAffineTransform(rotationAngle: CGFloat.pi / 4)
 
     // 添加子视图
@@ -71,7 +71,7 @@ class FlutterAnnotation2View: MKAnnotationView {
     containerView.addSubview(imageView)
     containerView.addSubview(titleLabel)
     
-    containerView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+    containerView.transform = CGAffineTransform(scaleX: 1, y: 1)
 
     // 设置约束
     setupConstraints()
@@ -95,18 +95,18 @@ class FlutterAnnotation2View: MKAnnotationView {
 
       // 三角形约束
       triangleView.centerXAnchor.constraint(equalTo: centerXAnchor),
-      triangleView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -6),
-      triangleView.widthAnchor.constraint(equalToConstant: 10),
-      triangleView.heightAnchor.constraint(equalToConstant: 10),
+      triangleView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -4),
+      triangleView.widthAnchor.constraint(equalToConstant: 8),
+      triangleView.heightAnchor.constraint(equalToConstant: 8),
 
       // 图像视图约束 - 左侧
-      imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 8),
+      imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 4),
       imageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-      imageView.widthAnchor.constraint(equalToConstant: 18),
-      imageView.heightAnchor.constraint(equalToConstant: 18),
+      imageView.widthAnchor.constraint(equalToConstant: 14),
+      imageView.heightAnchor.constraint(equalToConstant: 14),
 
       // 标题标签约束 - 右侧
-      titleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 5),
+      titleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 4),
       titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
       titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0),
     ])
@@ -135,11 +135,11 @@ class FlutterAnnotation2View: MKAnnotationView {
       // self.containerView.alpha = 1
       if isSelected {
         NSLog("更新视图 ☑️ 选中")
-        self.containerView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+        self.containerView.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
       } else {
         NSLog("更新视图 ❌ 未选中")
         // self.containerView.transform = .identity
-        self.containerView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        self.containerView.transform = CGAffineTransform(scaleX: 1, y: 1)
       }
     }
   }
