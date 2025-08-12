@@ -13,11 +13,18 @@ class FlutterAnnotation2View: MKAnnotationView {
   private let imageView = UIImageView()
   private let titleLabel = UILabel()
   private let triangleView = UIView()
-  
-  // 容器的宽
-  private let containerWidth: CGFloat = 96
-  // 容器的高
-  private let containerHeight: CGFloat = 32
+
+  // 最大尺寸
+  private let maxContainerWidth: CGFloat = 96
+  private let maxContainerHeight: CGFloat = 32
+  // 图像和间距的固定值
+  private let imageWidth: CGFloat = 14
+  private let imagePadding: CGFloat = 4
+  private let labelPadding: CGFloat = 4
+
+  // 存储动态宽高约束
+  private var containerWidthConstraint: NSLayoutConstraint!
+  private var containerHeightConstraint: NSLayoutConstraint!
 
   override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
     super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
@@ -31,33 +38,27 @@ class FlutterAnnotation2View: MKAnnotationView {
 
   private func setupView() {
     // 设置基本属性
-    canShowCallout = true // 点击是否显示小窗
-    frame = CGRect(x: 0, y: 0, width: containerWidth, height: containerHeight)
+    canShowCallout = true
+    frame = CGRect(x: 0, y: 0, width: maxContainerWidth, height: maxContainerHeight)
 
-    // 设置容器视图 - 白色背景
+    // 设置容器视图
     containerView.backgroundColor = UIColor.white
     containerView.layer.cornerRadius = 8
     containerView.layer.shadowColor = UIColor.black.cgColor
     containerView.layer.shadowOffset = CGSize(width: 0, height: 2)
     containerView.layer.shadowOpacity = 0.1
     containerView.layer.shadowRadius = 4
-    // containerView.layer.borderWidth = 1
-    // containerView.layer.borderColor = UIColor.systemBlue.cgColor
 
-    // 设置图像视图 - 左侧
+    // 设置图像视图
     imageView.contentMode = .scaleAspectFit
-    // imageView.tintColor = UIColor.systemBlue
-    // imageView.backgroundColor = UIColor.systemPink
-    // imageView.layer.cornerRadius = 16
     imageView.layer.masksToBounds = true
 
-    // 设置标题标签 - 右侧
-    titleLabel.font = UIFont.systemFont(ofSize: 10, weight: .medium)
+    // 设置标题标签
+    titleLabel.font = UIFont.systemFont(ofSize: 9, weight: .medium)
     titleLabel.textColor = UIColor.black
     titleLabel.textAlignment = .left
     titleLabel.numberOfLines = 2
-    titleLabel.lineBreakMode = .byTruncatingTail // 尾部省略号
-    // titleLabel.text = "我的位置"
+    titleLabel.lineBreakMode = .byTruncatingTail
 
     // 设置三角形
     triangleView.backgroundColor = .white
@@ -70,7 +71,7 @@ class FlutterAnnotation2View: MKAnnotationView {
     containerView.addSubview(triangleView)
     containerView.addSubview(imageView)
     containerView.addSubview(titleLabel)
-    
+
     containerView.transform = CGAffineTransform(scaleX: 1, y: 1)
 
     // 设置约束
@@ -83,15 +84,16 @@ class FlutterAnnotation2View: MKAnnotationView {
     imageView.translatesAutoresizingMaskIntoConstraints = false
     titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
+    // 初始化动态宽高约束
+    containerWidthConstraint = containerView.widthAnchor.constraint(equalToConstant: maxContainerWidth)
+    containerHeightConstraint = containerView.heightAnchor.constraint(equalToConstant: maxContainerHeight)
+
     NSLayoutConstraint.activate([
-      // 容器视图约束 - 水平布局，更宽
-      // containerView.topAnchor.constraint(equalTo: topAnchor),
-      containerView.topAnchor.constraint(equalTo: topAnchor, constant: -containerHeight/2),
+      // 容器视图约束
+      containerView.topAnchor.constraint(equalTo: topAnchor, constant: -maxContainerHeight / 2),
       containerView.centerXAnchor.constraint(equalTo: centerXAnchor),
-      // containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
-      // containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
-      containerView.widthAnchor.constraint(equalToConstant: containerWidth), // 增加宽度以适应左右布局
-      containerView.heightAnchor.constraint(equalToConstant: containerHeight),
+      containerWidthConstraint,
+      containerHeightConstraint,
 
       // 三角形约束
       triangleView.centerXAnchor.constraint(equalTo: centerXAnchor),
@@ -99,17 +101,52 @@ class FlutterAnnotation2View: MKAnnotationView {
       triangleView.widthAnchor.constraint(equalToConstant: 8),
       triangleView.heightAnchor.constraint(equalToConstant: 8),
 
-      // 图像视图约束 - 左侧
-      imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 4),
+      // 图像视图约束
+      imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: imagePadding),
       imageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-      imageView.widthAnchor.constraint(equalToConstant: 14),
-      imageView.heightAnchor.constraint(equalToConstant: 14),
+      imageView.widthAnchor.constraint(equalToConstant: imageWidth),
+      imageView.heightAnchor.constraint(equalToConstant: imageWidth),
 
-      // 标题标签约束 - 右侧
-      titleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: 4),
+      // 标题标签约束
+      titleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: labelPadding),
       titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-      titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: 0),
+      titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -labelPadding),
     ])
+  }
+
+  // 计算并更新容器尺寸
+  private func updateContainerSize(for text: String?) {
+    guard let text = text, !text.isEmpty else {
+      // 没有文本时，使用最小尺寸（仅图像+间距）
+      containerWidthConstraint.constant = imageWidth + 2 * imagePadding
+      containerHeightConstraint.constant = imageWidth + 2 * imagePadding
+      return
+    }
+
+    // 计算文本尺寸
+    let maxTextWidth = maxContainerWidth - imageWidth - 2 * imagePadding - 2 * labelPadding
+    let maxTextHeight = maxContainerHeight - 2 * imagePadding
+    let textAttributes: [NSAttributedString.Key: Any] = [.font: titleLabel.font!]
+    let textSize = (text as NSString).boundingRect(
+      with: CGSize(width: maxTextWidth, height: maxTextHeight),
+      options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine],
+      attributes: textAttributes,
+      context: nil
+    ).size
+
+    // 计算容器宽度
+    let calculatedWidth = imageWidth + 2 * imagePadding + textSize.width + 2 * labelPadding
+    let newWidth = min(calculatedWidth, maxContainerWidth)
+
+    // 计算容器高度（考虑文本行数）
+    let lineHeight = titleLabel.font.lineHeight
+    let numberOfLines = min(ceil(textSize.height / lineHeight), 2) // 最多 2 行
+    let calculatedHeight = max(imageWidth, numberOfLines * lineHeight) + 2 * imagePadding
+    let newHeight = min(calculatedHeight, maxContainerHeight)
+
+    // 更新约束
+    containerWidthConstraint.constant = newWidth
+    containerHeightConstraint.constant = newHeight
   }
 
   override func prepareForReuse() {
@@ -117,28 +154,27 @@ class FlutterAnnotation2View: MKAnnotationView {
     imageView.image = nil
     titleLabel.text = nil
     imageView.backgroundColor = UIColor.clear
+    // 重置尺寸
+    containerWidthConstraint.constant = maxContainerWidth
+    containerHeightConstraint.constant = maxContainerHeight
   }
 
   func configure(with annotation: FlutterAnnotation) {
     self.annotation = annotation
-
-    // imageView.tintColor = UIColor.white
     imageView.image = annotation.icon.image
-
-    // 设置标题
     titleLabel.text = annotation.title
+
+    // 根据文本更新容器尺寸
+    updateContainerSize(for: annotation.title)
   }
 
-  // 根据 annotation 的 isSelected 属性设置边框
   func updateSelected(with isSelected: Bool) {
     UIView.animate(withDuration: 0.3) {
-      // self.containerView.alpha = 1
       if isSelected {
         NSLog("更新视图 ☑️ 选中")
         self.containerView.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
       } else {
         NSLog("更新视图 ❌ 未选中")
-        // self.containerView.transform = .identity
         self.containerView.transform = CGAffineTransform(scaleX: 1, y: 1)
       }
     }
