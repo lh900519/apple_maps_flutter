@@ -77,6 +77,12 @@ class AppleMapController {
         _appleMapState
             .onLongPress(LatLng._fromJson(call.arguments['position'])!);
         break;
+      case 'applePoint#selected':
+        _appleMapState.onPointSelected(ApplePoint.fromJson(call.arguments));
+        break;
+      case 'applePoint#deSelected':
+        _appleMapState.onPointDeSelected(ApplePoint.fromJson(call.arguments));
+        break;
       default:
         throw MissingPluginException();
     }

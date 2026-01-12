@@ -23,6 +23,7 @@ class AppleMap extends StatefulWidget {
     this.compassEnabled = true,
     this.trafficEnabled = false,
     this.darkEnabled,
+    this.userPoint,
     this.mapType = MapType.standard,
     this.minMaxZoomPreference = MinMaxZoomPreference.unbounded,
     this.trackingMode = TrackingMode.none,
@@ -43,6 +44,8 @@ class AppleMap extends StatefulWidget {
     this.onTap,
     this.onLongPress,
     this.snapshotOptions,
+    this.onPointSelected,
+    this.onPointDeSelected,
     this.insetsLayoutMarginsFromSafeArea = true,
   }) : super(key: key);
 
@@ -59,6 +62,9 @@ class AppleMap extends StatefulWidget {
 
   /// Dark Mode
   final bool? darkEnabled;
+
+  // Use apple's poi data, only supports iOS16
+  final bool? userPoint;
 
   /// Type of map tiles to be rendered.
   final MapType mapType;
@@ -121,6 +127,12 @@ class AppleMap extends StatefulWidget {
 
   /// Called every time a [AppleMap] is long pressed.
   final ArgumentCallback<LatLng>? onLongPress;
+
+  /// Called every time a [ApplePoint] is tapped.
+  final ArgumentCallback<ApplePoint>? onPointSelected;
+
+  /// Called every time a [ApplePoint] is tapped.
+  final ArgumentCallback<ApplePoint>? onPointDeSelected;
 
   /// True if a "My Location" layer should be shown on the map.
   ///
@@ -325,6 +337,14 @@ class _AppleMapState extends State<AppleMap> {
   void onLongPress(LatLng position) {
     widget.onLongPress?.call(position);
   }
+
+  void onPointSelected(ApplePoint applePoint) {
+    widget.onPointSelected?.call(applePoint);
+  }
+
+  void onPointDeSelected(ApplePoint applePoint) {
+    widget.onPointDeSelected?.call(applePoint);
+  }
 }
 
 /// Configuration options for the AppleMaps user interface.
@@ -337,6 +357,7 @@ class _AppleMapOptions {
     this.trafficEnabled,
     this.mapType,
     this.darkEnabled,
+    this.userPoint,
     this.minMaxZoomPreference,
     this.rotateGesturesEnabled,
     this.scrollGesturesEnabled,
@@ -355,6 +376,7 @@ class _AppleMapOptions {
       trafficEnabled: map.trafficEnabled,
       mapType: map.mapType,
       darkEnabled: map.darkEnabled,
+      userPoint: map.userPoint,
       minMaxZoomPreference: map.minMaxZoomPreference,
       rotateGesturesEnabled: map.rotateGesturesEnabled,
       scrollGesturesEnabled: map.scrollGesturesEnabled,
@@ -375,6 +397,8 @@ class _AppleMapOptions {
   final MapType? mapType;
 
   final bool? darkEnabled;
+
+  final bool? userPoint;
 
   final MinMaxZoomPreference? minMaxZoomPreference;
 
@@ -409,6 +433,7 @@ class _AppleMapOptions {
     addIfNonNull('trafficEnabled', trafficEnabled);
     addIfNonNull('mapType', mapType?.index);
     addIfNonNull('darkEnabled', darkEnabled);
+    addIfNonNull('userPoint', userPoint);
     addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?._toJson());
     addIfNonNull('rotateGesturesEnabled', rotateGesturesEnabled);
     addIfNonNull('scrollGesturesEnabled', scrollGesturesEnabled);

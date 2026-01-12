@@ -203,7 +203,29 @@ class FlutterMapView: MKMapView, UIGestureRecognizerDelegate {
                 self.insetsLayoutMarginsFromSafeArea = insetsSafeArea
             }
         }
+        
+        // Enable point selection
+        if let _userPoint: Bool = options["userPoint"] as? Bool {
+            if #available(iOS 16.0, *) {
+                let config = MKStandardMapConfiguration(
+                    elevationStyle: .realistic, // 地形样式 开启 3D 地形效果
+                    emphasisStyle: .default // 强调样式
+                )
+                // 显示所有类型的 Point
+                config.pointOfInterestFilter = .includingAll
+                // Point 支持点击
+                self.selectableMapFeatures = [.pointsOfInterest, .territories]
 
+                self.preferredConfiguration = config
+            }
+          
+//            // 设置手势识别器代理
+//            if let gestureRecognizers = self.gestureRecognizers {
+//                for recognizer in gestureRecognizers {
+//                    recognizer.delegate = self
+//                }
+//            }
+        }
     }
     
     func setUserLocation() {

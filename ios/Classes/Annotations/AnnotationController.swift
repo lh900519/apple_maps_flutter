@@ -34,6 +34,30 @@ extension AppleMapController: AnnotationDelegate {
                 annotationView.updateSelected(with: true)
                 annotationView.setNeedsLayout()
             }
+        } else if let annotation: MKAnnotation = view.annotation  {
+            // 排除用户位置
+            guard !(annotation is MKUserLocation) else { return }
+          
+            // 准备发送到 Flutter 的数据
+            var poiData: [String: Any] = [
+              "latitude": annotation.coordinate.latitude,
+              "longitude": annotation.coordinate.longitude,
+            ]
+            if let title = annotation.title {
+              poiData["title"] = title ?? ""
+            }
+            if let subtitle = annotation.subtitle {
+              poiData["subtitle"] = subtitle ?? ""
+            }
+            
+            // iOS 16+ 获取更多 POI 信息
+            if #available(iOS 16.0, *), let featureAnnotation = annotation as? MKMapFeatureAnnotation {
+              // poiData["iconStyle"] = featureAnnotation.iconStyle
+              poiData["featureType"] = featureAnnotation.featureType.rawValue
+            }
+
+            // 发送事件到 Flutter
+            self.channel.invokeMethod("applePoint#selected", arguments: poiData)
         }
     }
     
@@ -47,6 +71,32 @@ extension AppleMapController: AnnotationDelegate {
                 annotationView.updateSelected(with: false)
                 annotationView.setNeedsLayout()
             }
+        } else if let annotation: MKAnnotation = view.annotation  {
+            // 排除用户位置
+            guard !(annotation is MKUserLocation) else { return }
+
+            let coordinate = annotation.coordinate
+            var poiData: [String: Any] = [
+                "latitude": coordinate.latitude,
+                "longitude": coordinate.longitude
+            ]
+          
+            if let title = annotation.title {
+              poiData["title"] = title ?? ""
+            }
+            
+            if let subtitle = annotation.subtitle {
+              poiData["subtitle"] = subtitle ?? ""
+            }
+            
+            // iOS 16+ 获取更多 POI 信息
+            if #available(iOS 16.0, *), let featureAnnotation = annotation as? MKMapFeatureAnnotation {
+              // poiData["iconStyle"] = featureAnnotation.iconStyle
+              poiData["featureType"] = featureAnnotation.featureType.rawValue
+            }
+            
+            // 发送事件到 Flutter
+            self.channel.invokeMethod("applePoint#deSelected", arguments: poiData)
         }
     }
 
