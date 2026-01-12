@@ -219,12 +219,12 @@ class FlutterMapView: MKMapView, UIGestureRecognizerDelegate {
                 self.preferredConfiguration = config
             }
           
-//            // 设置手势识别器代理
-//            if let gestureRecognizers = self.gestureRecognizers {
-//                for recognizer in gestureRecognizers {
-//                    recognizer.delegate = self
-//                }
-//            }
+            // 设置手势识别器代理
+            //   if let gestureRecognizers = self.gestureRecognizers {
+            //     for recognizer in gestureRecognizers {
+            //        recognizer.delegate = self
+            //    }
+            // }
         }
     }
     
