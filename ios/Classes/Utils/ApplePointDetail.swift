@@ -5,6 +5,7 @@
 //  Created by lh900519 on 2026/1/12.
 //
 
+import Foundation
 import MapKit
 
 class ApplePointDetail {
@@ -83,6 +84,7 @@ class ApplePointDetail {
             var searchList: [[String: Any]] = []
           
             guard error == nil, let response = response else {
+                print("错误\(String(describing: error))")
                 completion([])
                 return
             }
