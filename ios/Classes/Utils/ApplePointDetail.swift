@@ -5,11 +5,13 @@
 //  Created by lh900519 on 2026/1/12.
 //
 
+import MapKit
+
 class ApplePointDetail {
     // 逆地理解析（CLPlacemark → 统一 POI 数据结构）
     static func reverseGeocode(
         coordinate: CLLocationCoordinate2D,
-        channel: FlutterMethodChannel?
+        completion: @escaping ([String: Any]?) -> Void
     ) {
         let geocoder = CLGeocoder()
         let location = CLLocation(
@@ -19,9 +21,7 @@ class ApplePointDetail {
 
         geocoder.reverseGeocodeLocation(location) { placemarks, _ in
             guard let placemark = placemarks?.first else {
-                DispatchQueue.main.async {
-                    channel?.invokeMethod("onPOIDetailLoaded", arguments: [:])
-                }
+                completion(nil)
                 return
             }
 
@@ -46,7 +46,7 @@ class ApplePointDetail {
                 "subState": placemark.subAdministrativeArea ?? "",
                 "postalCode": placemark.postalCode ?? "",
                 "country": placemark.country ?? "",
-                "countryCode": placemark.ISOcountryCode ?? "",
+                "countryCode": placemark.isoCountryCode ?? "",
             ]
 
             // ⏰ 时区（与 MKMapItem.timeZone 对齐）
@@ -58,60 +58,40 @@ class ApplePointDetail {
             if let areas = placemark.areasOfInterest, !areas.isEmpty {
                 detailData["areasOfInterest"] = areas
             }
-
-            DispatchQueue.main.async {
-                channel?.invokeMethod(
-                    "onPOIDetailLoaded",
-                    arguments: detailData
-                )
-            }
+            
+            completion(detailData)
         }
     }
-
-    // 搜索 POI
-    static var currentSearch: MKLocalSearch?
 
     static func searchRegion(
         point: String,
         coordinate: CLLocationCoordinate2D,
-        channel: FlutterMethodChannel?
+        radius: Double,
+        completion: @escaping ([[String: Any]]) -> Void
     ) {
-        // 取消上一次搜索，避免重叠 / 回调错乱
-        currentSearch?.cancel()
-
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = point
         request.region = MKCoordinateRegion(
             center: coordinate,
-            latitudinalMeters: 100,
-            longitudinalMeters: 100
+            latitudinalMeters: radius,
+            longitudinalMeters: radius
         )
 
         let search = MKLocalSearch(request: request)
-        currentSearch = search
 
         search.start { response, error in
-            // ❌ 错误处理
-            if let error = error {
-                print("❌ MKLocalSearch error: \(error)")
-                DispatchQueue.main.async {
-                    channel?.invokeMethod("onPOIDetailLoaded", arguments: [])
-                }
-                return
-            }
-
-            guard let response = response else {
-                DispatchQueue.main.async {
-                    channel?.invokeMethod("onPOIDetailLoaded", arguments: [])
-                }
-                return
-            }
-
             var searchList: [[String: Any]] = []
+          
+            guard error == nil, let response = response else {
+                completion([])
+                return
+            }
 
             for item in response.mapItems {
-                let coord = item.location.coordinate
-
+                
+                let placemark = item.placemark
+                let coord = placemark.coordinate
+                
                 var detailData: [String: Any] = [
                     "latitude": coord.latitude,
                     "longitude": coord.longitude,
@@ -119,36 +99,23 @@ class ApplePointDetail {
                     "url": item.url?.absoluteString ?? "",
                     "isCurrentLocation": item.isCurrentLocation,
                 ]
+                
+                
+                // 📍 address 子对象（与 MKMapItem.searchRegion 完全一致）
+                let street = [
+                    placemark.subThoroughfare,
+                    placemark.thoroughfare,
+                ]
+                .compactMap { $0 }
+                .joined(separator: " ")
 
-                // ✅ iOS 26+（未来）
-                if #available(iOS 26.0, *) {
-                    if let addr = item.address {
-                        detailData["street"] = addr.street
-                        detailData["city"] = addr.city
-                        detailData["state"] = addr.state
-                        detailData["postalCode"] = addr.postalCode
-                        detailData["country"] = addr.country
-                        detailData["countryCode"] = addr.countryCode
-                    }
-                } else {
-                    // ✅ iOS 17 / 18
-                    let placemark = item.placemark
-                    // 📍 address 子对象（与 MKMapItem.searchRegion 完全一致）
-                    let street = [
-                        placemark.subThoroughfare,
-                        placemark.thoroughfare,
-                    ]
-                    .compactMap { $0 }
-                    .joined(separator: " ")
-
-                    detailData["street"] = street
-                    detailData["city"] = placemark?.locality
-                    detailData["district"] = placemark?.subLocality
-                    detailData["state"] = placemark?.administrativeArea
-                    detailData["postalCode"] = placemark?.postalCode
-                    detailData["country"] = placemark?.country
-                    detailData["countryCode"] = placemark?.isoCountryCode
-                }
+                detailData["street"] = street
+                detailData["city"] = placemark.locality
+                detailData["district"] = placemark.subLocality
+                detailData["state"] = placemark.administrativeArea
+                detailData["postalCode"] = placemark.postalCode
+                detailData["country"] = placemark.country
+                detailData["countryCode"] = placemark.isoCountryCode
 
                 // POI 分类
                 if let category = item.pointOfInterestCategory {
@@ -174,13 +141,7 @@ class ApplePointDetail {
                 searchList.append(detailData)
             }
 
-            // Flutter 通道必须回主线程
-            DispatchQueue.main.async {
-                channel?.invokeMethod(
-                    "onPOIDetailLoaded",
-                    arguments: searchList
-                )
-            }
+            completion(searchList)
         }
     }
 }

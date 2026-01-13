@@ -117,6 +117,12 @@ public class AppleMapController: NSObject, FlutterPlatformView {
                     self.takeSnapshot(options: SnapshotOptions.init(options: args), onCompletion: { (snapshot: FlutterStandardTypedData?, error: Error?) -> Void in
                         result(snapshot ?? error)
                     })
+                case "map#reverseGeocode":
+                    self.reverseGeocode(args: args, result: result)
+                    break
+                case "map#searchRegion":
+                    self.searchRegion(args: args, result: result)
+                    break
                 default:
                     result(FlutterMethodNotImplemented)
                     break
@@ -245,6 +251,53 @@ public class AppleMapController: NSObject, FlutterPlatformView {
         }
         let point = self.mapView.convert(CLLocationCoordinate2D(latitude: annotation[0] , longitude: annotation[1]), toPointTo: self.view())
         result(["point": [point.x, point.y]])
+    }
+  
+    private func reverseGeocode(args: Dictionary<String, Any>, result: @escaping FlutterResult) -> Void {
+        guard let annotation = args["annotation"] as? [Double] else {
+            DispatchQueue.main.async {
+                result(nil)
+            }
+            return
+        }
+        let coordinate = CLLocationCoordinate2D(
+            latitude: annotation[0],
+            longitude: annotation[1]
+        )
+        ApplePointDetail.reverseGeocode(coordinate: coordinate) { data in
+          DispatchQueue.main.async {
+              result(["data": data])
+          }
+      }
+    }
+  
+    private func searchRegion(args: Dictionary<String, Any>, result: @escaping FlutterResult) -> Void {
+        guard
+            let annotation = args["annotation"] as? [Double],
+            annotation.count == 2,
+            let search = args["search"] as? String,
+            let radius = args["radius"] as? Double
+        else {
+            DispatchQueue.main.async {
+                result([])
+            }
+            return
+        }
+
+        let coordinate = CLLocationCoordinate2D(
+            latitude: annotation[0],
+            longitude: annotation[1]
+        )
+
+        ApplePointDetail.searchRegion(
+            point: search,
+            coordinate: coordinate,
+            radius: radius
+        ) { list in
+            DispatchQueue.main.async {
+              result(["data": list])
+            }
+        }
     }
     
     private func toPositionData(data: Array<Any>, animated: Bool) -> Dictionary<String, Any> {
