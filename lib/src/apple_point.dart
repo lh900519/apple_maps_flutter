@@ -86,77 +86,89 @@ class ApplePoint {
 @immutable
 class ApplePoiDetail {
   const ApplePoiDetail({
-    this.id,
+    this.identifier,
     required this.name,
     required this.latitude,
     required this.longitude,
-    this.street,
-    this.city,
-    this.district,
-    this.state,
-    this.subState,
+    this.locality,
+    this.subLocality,
+    this.administrativeArea,
+    this.subAdministrativeArea,
     this.postalCode,
     this.country,
-    this.countryCode,
-    this.category,
-    this.phone,
+    this.isoCountryCode,
+    this.subThoroughfare,
+    this.thoroughfare,
+    this.alternateIdentifiers,
+    this.areasOfInterest,
+    this.phoneNumber,
     this.url,
     this.timeZone,
   });
 
-  final String? id;
+  final String? identifier;
   final String name;
+
   final double latitude;
   final double longitude;
 
-  final String? street;
-  final String? city;
-  final String? district;
-  final String? state;
-  final String? subState;
+  final String? locality;
+  final String? subLocality;
+  final String? administrativeArea;
+  final String? subAdministrativeArea;
   final String? postalCode;
   final String? country;
-  final String? countryCode;
+  final String? isoCountryCode;
 
-  final String? category;
-  final String? phone;
+  final String? subThoroughfare;
+  final String? thoroughfare;
+
+  final List<String>? alternateIdentifiers;
+
+  final String? areasOfInterest;
+  final String? phoneNumber;
   final String? url;
   final String? timeZone;
 
   /// copyWith
   ApplePoiDetail copyWith({
-    String? idParam,
+    String? identifierParam,
     String? nameParam,
     double? latitudeParam,
     double? longitudeParam,
-    String? streetParam,
-    String? cityParam,
-    String? districtParam,
-    String? stateParam,
-    String? subStateParam,
+    String? localityParam,
+    String? subLocalityParam,
+    String? administrativeAreaParam,
+    String? subAdministrativeAreaParam,
     String? postalCodeParam,
     String? countryParam,
-    String? countryCodeParam,
-    String? categoryParam,
-    String? phoneParam,
+    String? isoCountryCodeParam,
+    String? subThoroughfareParam,
+    String? thoroughfareParam,
+    List<String>? alternateIdentifiersParam,
+    String? areasOfInterestParam,
+    String? phoneNumberParam,
     String? urlParam,
     String? timeZoneParam,
   }) {
     return ApplePoiDetail(
-      id: idParam ?? id,
+      identifier: identifierParam ?? identifier,
       name: nameParam ?? name,
       latitude: latitudeParam ?? latitude,
       longitude: longitudeParam ?? longitude,
-      street: streetParam ?? street,
-      city: cityParam ?? city,
-      district: districtParam ?? district,
-      state: stateParam ?? state,
-      subState: subStateParam ?? subState,
+      locality: localityParam ?? locality,
+      subLocality: subLocalityParam ?? subLocality,
+      administrativeArea: administrativeAreaParam ?? administrativeArea,
+      subAdministrativeArea:
+          subAdministrativeAreaParam ?? subAdministrativeArea,
       postalCode: postalCodeParam ?? postalCode,
       country: countryParam ?? country,
-      countryCode: countryCodeParam ?? countryCode,
-      category: categoryParam ?? category,
-      phone: phoneParam ?? phone,
+      isoCountryCode: isoCountryCodeParam ?? isoCountryCode,
+      subThoroughfare: subThoroughfareParam ?? subThoroughfare,
+      thoroughfare: thoroughfareParam ?? thoroughfare,
+      alternateIdentifiers: alternateIdentifiersParam ?? alternateIdentifiers,
+      areasOfInterest: areasOfInterestParam ?? areasOfInterest,
+      phoneNumber: phoneNumberParam ?? phoneNumber,
       url: urlParam ?? url,
       timeZone: timeZoneParam ?? timeZone,
     );
@@ -165,7 +177,7 @@ class ApplePoiDetail {
   /// clone
   ApplePoiDetail clone() => copyWith();
 
-  /// toJson（Flutter ↔︎ iOS / MethodChannel 推荐）
+  /// toJson（MethodChannel / EventChannel 推荐）
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = <String, dynamic>{};
 
@@ -175,20 +187,22 @@ class ApplePoiDetail {
       }
     }
 
-    addIfPresent('id', id);
+    addIfPresent('identifier', identifier);
     addIfPresent('name', name);
     addIfPresent('latitude', latitude);
     addIfPresent('longitude', longitude);
-    addIfPresent('street', street);
-    addIfPresent('city', city);
-    addIfPresent('district', district);
-    addIfPresent('state', state);
-    addIfPresent('subState', subState);
+    addIfPresent('locality', locality);
+    addIfPresent('subLocality', subLocality);
+    addIfPresent('administrativeArea', administrativeArea);
+    addIfPresent('subAdministrativeArea', subAdministrativeArea);
     addIfPresent('postalCode', postalCode);
     addIfPresent('country', country);
-    addIfPresent('countryCode', countryCode);
-    addIfPresent('category', category);
-    addIfPresent('phone', phone);
+    addIfPresent('isoCountryCode', isoCountryCode);
+    addIfPresent('subThoroughfare', subThoroughfare);
+    addIfPresent('thoroughfare', thoroughfare);
+    addIfPresent('alternateIdentifiers', alternateIdentifiers);
+    addIfPresent('areasOfInterest', areasOfInterest);
+    addIfPresent('phoneNumber', phoneNumber);
     addIfPresent('url', url);
     addIfPresent('timeZone', timeZone);
 
@@ -196,22 +210,26 @@ class ApplePoiDetail {
   }
 
   /// fromJson
-  factory ApplePoiDetail.fromJson(Map<String, dynamic> json) {
+  factory ApplePoiDetail.fromJson(Map<dynamic, dynamic> json) {
     return ApplePoiDetail(
-      id: json['id'] as String?,
+      identifier: json['identifier'] as String?,
       name: json['name'] as String? ?? '',
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
-      street: json['street'] as String?,
-      city: json['city'] as String?,
-      district: json['district'] as String?,
-      state: json['state'] as String?,
-      subState: json['subState'] as String?,
+      locality: json['locality'] as String?,
+      subLocality: json['subLocality'] as String?,
+      administrativeArea: json['administrativeArea'] as String?,
+      subAdministrativeArea: json['subAdministrativeArea'] as String?,
       postalCode: json['postalCode'] as String?,
       country: json['country'] as String?,
-      countryCode: json['countryCode'] as String?,
-      category: json['category'] as String?,
-      phone: json['phone'] as String?,
+      isoCountryCode: json['isoCountryCode'] as String?,
+      subThoroughfare: json['subThoroughfare'] as String?,
+      thoroughfare: json['thoroughfare'] as String?,
+      alternateIdentifiers: (json['alternateIdentifiers'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
+      areasOfInterest: json['areasOfInterest'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
       url: json['url'] as String?,
       timeZone: json['timeZone'] as String?,
     );
@@ -222,40 +240,44 @@ class ApplePoiDetail {
     if (identical(this, other)) return true;
     if (other is! ApplePoiDetail) return false;
 
-    return id == other.id &&
+    return identifier == other.identifier &&
         name == other.name &&
         latitude == other.latitude &&
         longitude == other.longitude &&
-        street == other.street &&
-        city == other.city &&
-        district == other.district &&
-        state == other.state &&
-        subState == other.subState &&
+        locality == other.locality &&
+        subLocality == other.subLocality &&
+        administrativeArea == other.administrativeArea &&
+        subAdministrativeArea == other.subAdministrativeArea &&
         postalCode == other.postalCode &&
         country == other.country &&
-        countryCode == other.countryCode &&
-        category == other.category &&
-        phone == other.phone &&
+        isoCountryCode == other.isoCountryCode &&
+        subThoroughfare == other.subThoroughfare &&
+        thoroughfare == other.thoroughfare &&
+        listEquals(alternateIdentifiers, other.alternateIdentifiers) &&
+        areasOfInterest == other.areasOfInterest &&
+        phoneNumber == other.phoneNumber &&
         url == other.url &&
         timeZone == other.timeZone;
   }
 
   @override
   int get hashCode => Object.hash(
-        id,
+        identifier,
         name,
         latitude,
         longitude,
-        street,
-        city,
-        district,
-        state,
-        subState,
+        locality,
+        subLocality,
+        administrativeArea,
+        subAdministrativeArea,
         postalCode,
         country,
-        countryCode,
-        category,
-        phone,
+        isoCountryCode,
+        subThoroughfare,
+        thoroughfare,
+        Object.hashAll(alternateIdentifiers ?? const []),
+        areasOfInterest,
+        phoneNumber,
         url,
         timeZone,
       );

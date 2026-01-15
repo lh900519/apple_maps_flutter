@@ -9,7 +9,34 @@ import Foundation
 import MapKit
 
 extension AppleMapController: AnnotationDelegate {
+    // iOS26 触发这个
+    public func mapView(_ mapView: MKMapView, didSelect annotation: any MKAnnotation) {
+        // 排除用户位置
+        guard !(annotation is MKUserLocation) else { return }
+      
+        // 准备发送到 Flutter 的数据
+        var poiData: [String: Any] = [
+          "latitude": annotation.coordinate.latitude,
+          "longitude": annotation.coordinate.longitude,
+        ]
+        if let title = annotation.title {
+          poiData["title"] = title ?? ""
+        }
+        if let subtitle = annotation.subtitle {
+          poiData["subtitle"] = subtitle ?? ""
+        }
+        
+        // iOS 16+ 获取更多 POI 信息
+        if #available(iOS 16.0, *), let featureAnnotation = annotation as? MKMapFeatureAnnotation {
+          // poiData["iconStyle"] = featureAnnotation.iconStyle
+          poiData["featureType"] = featureAnnotation.featureType.rawValue
+        }
 
+        // 发送事件到 Flutter
+        self.channel.invokeMethod("applePoint#selected", arguments: poiData)
+    }
+    
+    // iOS26 之前 触发这个
     public func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView)  {
         if let annotation: FlutterAnnotation = view.annotation as? FlutterAnnotation  {
             self.currentlySelectedAnnotation = annotation.id
