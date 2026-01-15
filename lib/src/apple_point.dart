@@ -7,14 +7,21 @@ class ApplePoint {
     required this.subtitle,
     required this.latitude,
     required this.longitude,
-    required this.featureType,
+    this.featureType,
+    this.pointOfInterestCategory,
+    this.iconStyleImage,
+    this.iconStyleBackgroundColor,
   });
 
   final String title;
   final String subtitle;
   final double latitude;
   final double longitude;
-  final int featureType;
+  final int? featureType;
+  final String? pointOfInterestCategory;
+
+  final Uint8List? iconStyleImage;
+  final int? iconStyleBackgroundColor;
 
   /// copyWith
   ApplePoint copyWith({
@@ -23,6 +30,9 @@ class ApplePoint {
     double? latitudeParam,
     double? longitudeParam,
     int? featureTypeParam,
+    String? pointOfInterestCategoryParam,
+    Uint8List? iconStyleImageParam,
+    int? iconStyleBackgroundColorParam,
   }) {
     return ApplePoint(
       title: titleParam ?? title,
@@ -30,6 +40,11 @@ class ApplePoint {
       latitude: latitudeParam ?? latitude,
       longitude: longitudeParam ?? longitude,
       featureType: featureTypeParam ?? featureType,
+      pointOfInterestCategory:
+          pointOfInterestCategoryParam ?? pointOfInterestCategory,
+      iconStyleImage: iconStyleImageParam ?? iconStyleImage,
+      iconStyleBackgroundColor:
+          iconStyleBackgroundColorParam ?? iconStyleBackgroundColor,
     );
   }
 
@@ -51,6 +66,9 @@ class ApplePoint {
     addIfPresent('latitude', latitude);
     addIfPresent('longitude', longitude);
     addIfPresent('featureType', featureType);
+    addIfPresent('pointOfInterestCategory', pointOfInterestCategory);
+    addIfPresent('iconStyleImage', iconStyleImage);
+    addIfPresent('iconStyleBackgroundColor', iconStyleBackgroundColor);
 
     return json;
   }
@@ -62,7 +80,10 @@ class ApplePoint {
       subtitle: json['subtitle'] as String? ?? '',
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
-      featureType: json['featureType'] as int? ?? 0,
+      featureType: json['featureType'] as int?,
+      pointOfInterestCategory: json['pointOfInterestCategory'] as String?,
+      iconStyleImage: json['iconStyleImage'] as Uint8List?,
+      iconStyleBackgroundColor: json['iconStyleBackgroundColor'] as int?,
     );
   }
 
@@ -75,12 +96,23 @@ class ApplePoint {
         subtitle == other.subtitle &&
         latitude == other.latitude &&
         longitude == other.longitude &&
-        featureType == other.featureType;
+        featureType == other.featureType &&
+        pointOfInterestCategory == other.pointOfInterestCategory &&
+        iconStyleImage == other.iconStyleImage &&
+        iconStyleBackgroundColor == other.iconStyleBackgroundColor;
   }
 
   @override
-  int get hashCode =>
-      Object.hash(title, subtitle, latitude, longitude, featureType);
+  int get hashCode => Object.hash(
+        title,
+        subtitle,
+        latitude,
+        longitude,
+        featureType,
+        pointOfInterestCategory,
+        iconStyleImage,
+        iconStyleBackgroundColor,
+      );
 }
 
 @immutable
@@ -101,6 +133,7 @@ class ApplePoiDetail {
     this.thoroughfare,
     this.alternateIdentifiers,
     this.areasOfInterest,
+    this.pointOfInterestCategory,
     this.phoneNumber,
     this.url,
     this.timeZone,
@@ -126,6 +159,8 @@ class ApplePoiDetail {
   final List<String>? alternateIdentifiers;
 
   final String? areasOfInterest;
+  final String? pointOfInterestCategory;
+
   final String? phoneNumber;
   final String? url;
   final String? timeZone;
@@ -147,6 +182,7 @@ class ApplePoiDetail {
     String? thoroughfareParam,
     List<String>? alternateIdentifiersParam,
     String? areasOfInterestParam,
+    String? pointOfInterestCategoryParam,
     String? phoneNumberParam,
     String? urlParam,
     String? timeZoneParam,
@@ -168,6 +204,8 @@ class ApplePoiDetail {
       thoroughfare: thoroughfareParam ?? thoroughfare,
       alternateIdentifiers: alternateIdentifiersParam ?? alternateIdentifiers,
       areasOfInterest: areasOfInterestParam ?? areasOfInterest,
+      pointOfInterestCategory:
+          pointOfInterestCategoryParam ?? pointOfInterestCategory,
       phoneNumber: phoneNumberParam ?? phoneNumber,
       url: urlParam ?? url,
       timeZone: timeZoneParam ?? timeZone,
@@ -202,6 +240,7 @@ class ApplePoiDetail {
     addIfPresent('thoroughfare', thoroughfare);
     addIfPresent('alternateIdentifiers', alternateIdentifiers);
     addIfPresent('areasOfInterest', areasOfInterest);
+    addIfPresent('pointOfInterestCategory', pointOfInterestCategory);
     addIfPresent('phoneNumber', phoneNumber);
     addIfPresent('url', url);
     addIfPresent('timeZone', timeZone);
@@ -229,6 +268,7 @@ class ApplePoiDetail {
           ?.map((e) => e.toString())
           .toList(),
       areasOfInterest: json['areasOfInterest'] as String?,
+      pointOfInterestCategory: json['pointOfInterestCategory'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
       url: json['url'] as String?,
       timeZone: json['timeZone'] as String?,
@@ -255,6 +295,7 @@ class ApplePoiDetail {
         thoroughfare == other.thoroughfare &&
         listEquals(alternateIdentifiers, other.alternateIdentifiers) &&
         areasOfInterest == other.areasOfInterest &&
+        pointOfInterestCategory == other.pointOfInterestCategory &&
         phoneNumber == other.phoneNumber &&
         url == other.url &&
         timeZone == other.timeZone;
@@ -277,6 +318,7 @@ class ApplePoiDetail {
         thoroughfare,
         Object.hashAll(alternateIdentifiers ?? const []),
         areasOfInterest,
+        pointOfInterestCategory,
         phoneNumber,
         url,
         timeZone,
