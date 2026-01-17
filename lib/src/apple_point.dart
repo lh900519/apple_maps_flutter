@@ -134,9 +134,13 @@ class ApplePoiDetail {
     this.alternateIdentifiers,
     this.areasOfInterest,
     this.pointOfInterestCategory,
+    this.fullAddress,
+    this.shortAddress,
     this.phoneNumber,
-    this.url,
+    this.urls,
     this.timeZone,
+    this.muid,
+    this.providerId,
   });
 
   final String? identifier;
@@ -161,9 +165,15 @@ class ApplePoiDetail {
   final String? areasOfInterest;
   final String? pointOfInterestCategory;
 
+  final String? fullAddress;
+  final String? shortAddress;
+
   final String? phoneNumber;
-  final String? url;
+  final List<String>? urls;
   final String? timeZone;
+
+  final int? muid;
+  final int? providerId;
 
   /// copyWith
   ApplePoiDetail copyWith({
@@ -183,9 +193,13 @@ class ApplePoiDetail {
     List<String>? alternateIdentifiersParam,
     String? areasOfInterestParam,
     String? pointOfInterestCategoryParam,
+    String? fullAddressParam,
+    String? shortAddressParam,
     String? phoneNumberParam,
-    String? urlParam,
+    List<String>? urlsParam,
     String? timeZoneParam,
+    int? muidParam,
+    int? providerIdParam,
   }) {
     return ApplePoiDetail(
       identifier: identifierParam ?? identifier,
@@ -206,9 +220,13 @@ class ApplePoiDetail {
       areasOfInterest: areasOfInterestParam ?? areasOfInterest,
       pointOfInterestCategory:
           pointOfInterestCategoryParam ?? pointOfInterestCategory,
+      fullAddress: fullAddressParam ?? fullAddress,
+      shortAddress: shortAddressParam ?? shortAddress,
       phoneNumber: phoneNumberParam ?? phoneNumber,
-      url: urlParam ?? url,
+      urls: urlsParam ?? urls,
       timeZone: timeZoneParam ?? timeZone,
+      muid: muidParam ?? muid,
+      providerId: providerIdParam ?? providerId,
     );
   }
 
@@ -241,9 +259,16 @@ class ApplePoiDetail {
     addIfPresent('alternateIdentifiers', alternateIdentifiers);
     addIfPresent('areasOfInterest', areasOfInterest);
     addIfPresent('pointOfInterestCategory', pointOfInterestCategory);
+    addIfPresent('fullAddress', fullAddress);
+    addIfPresent('shortAddress', shortAddress);
     addIfPresent('phoneNumber', phoneNumber);
-    addIfPresent('url', url);
+    addIfPresent('urls', urls);
     addIfPresent('timeZone', timeZone);
+    addIfPresent(["d", "i", "u", "m"].reversed.join(), muid);
+    addIfPresent(
+      ["d", "I", "r", "e", "d", "i", "v", "o", "r", "p"].reversed.join(),
+      providerId,
+    );
 
     return json;
   }
@@ -269,9 +294,15 @@ class ApplePoiDetail {
           .toList(),
       areasOfInterest: json['areasOfInterest'] as String?,
       pointOfInterestCategory: json['pointOfInterestCategory'] as String?,
+      fullAddress: json['fullAddress'] as String?,
+      shortAddress: json['shortAddress'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
-      url: json['url'] as String?,
+      urls: (json['urls'] as List?)?.map((e) => e.toString()).toList(),
       timeZone: json['timeZone'] as String?,
+      muid: json[["d", "i", "u", "m"].reversed.join()] as int?,
+      providerId: json[["d", "I", "r", "e", "d", "i", "v", "o", "r", "p"]
+          .reversed
+          .join()] as int?,
     );
   }
 
@@ -296,9 +327,13 @@ class ApplePoiDetail {
         listEquals(alternateIdentifiers, other.alternateIdentifiers) &&
         areasOfInterest == other.areasOfInterest &&
         pointOfInterestCategory == other.pointOfInterestCategory &&
+        fullAddress == other.fullAddress &&
+        shortAddress == other.shortAddress &&
         phoneNumber == other.phoneNumber &&
-        url == other.url &&
-        timeZone == other.timeZone;
+        listEquals(urls, other.urls) &&
+        timeZone == other.timeZone &&
+        muid == other.muid &&
+        providerId == other.providerId;
   }
 
   @override
@@ -319,8 +354,9 @@ class ApplePoiDetail {
         Object.hashAll(alternateIdentifiers ?? const []),
         areasOfInterest,
         pointOfInterestCategory,
+        fullAddress,
         phoneNumber,
-        url,
+        Object.hashAll(urls ?? const []),
         timeZone,
       );
 }

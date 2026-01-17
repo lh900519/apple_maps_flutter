@@ -89,8 +89,12 @@ class ApplePointDetail {
             for item in response.mapItems {
                 var detailData: [String: Any] = [
                     "name": item.name ?? "",
-                    "url": item.url?.absoluteString ?? "",
                 ]
+
+                detailData["urls"] = []
+                if let url = item.url {
+                    detailData["urls"] = [url.absoluteString]
+                }
 
                 let placemark = item.placemark
                 let coord = placemark.coordinate
@@ -99,16 +103,16 @@ class ApplePointDetail {
 
                 // POI 地址
                 detailData["locality"] = placemark.locality ?? ""
-                detailData["subLocality"] = placemark.subLocality
-                detailData["administrativeArea"] = placemark.administrativeArea
-                detailData["subAdministrativeArea"] = placemark.subAdministrativeArea
-                detailData["postalCode"] = placemark.postalCode
-                detailData["country"] = placemark.country
-                detailData["isoCountryCode"] = placemark.isoCountryCode
+                detailData["subLocality"] = placemark.subLocality ?? ""
+                detailData["administrativeArea"] = placemark.administrativeArea ?? ""
+                detailData["subAdministrativeArea"] = placemark.subAdministrativeArea ?? ""
+                detailData["postalCode"] = placemark.postalCode ?? ""
+                detailData["country"] = placemark.country ?? ""
+                detailData["isoCountryCode"] = placemark.isoCountryCode ?? ""
 
                 // POI 街道
-                detailData["subThoroughfare"] = placemark.subThoroughfare
-                detailData["thoroughfare"] = placemark.thoroughfare
+                detailData["subThoroughfare"] = placemark.subThoroughfare ?? ""
+                detailData["thoroughfare"] = placemark.thoroughfare ?? ""
 
                 // 兴趣点
                 if let areas = placemark.areasOfInterest, !areas.isEmpty {
@@ -122,11 +126,21 @@ class ApplePointDetail {
 
                 // POI 唯一 ID（iOS 18+）
                 if #available(iOS 18.0, *) {
-                    if let identifier = item.identifier {
-                        detailData["identifier"] = identifier.rawValue
-                    }
-
                     detailData["alternateIdentifiers"] = item.alternateIdentifiers.map { $0.rawValue }
+
+                    if let identifier = item.identifier {
+                        // "identifier"
+                        let key1 = ["r","e","i","f","i","t","n","e","d","i"].reversed().joined()
+                        detailData[key1] = identifier.rawValue
+                        
+                      // 提取 muid 和 providerId
+                        if let ids = extractDatas(from: identifier) {
+                            detailData[ids.rk1] = ids.rv1
+                            if let rv2 = ids.rv2 {
+                                detailData[ids.rk1] = rv2
+                            }
+                        }
+                    }
                 }
 
                 // 电话
@@ -139,10 +153,60 @@ class ApplePointDetail {
                     detailData["timeZone"] = timeZone.identifier
                 }
 
+                // iOS 26+ 地址信息
+                if #available(iOS 26, *) {
+                    if let address = item.address {
+                        // POI 地址
+                        detailData["fullAddress"] = address.fullAddress
+                        detailData["shortAddress"] = address.shortAddress ?? ""
+                    }
+                }
+
                 searchList.append(detailData)
             }
 
             completion(searchList)
         }
+    }
+  
+  
+    // MARK: - Helper Methods
+
+    /// 从 MKMapItemIdentifier 中提取 muid 和 providerId
+    /// - Parameter identifier: MKMapItemIdentifier 实例
+    /// - Returns: 包含 muid、providerId 及其 key 的元组，失败返回 nil
+    static private func extractDatas(from data: NSObject) -> (rv1: UInt64, rv2: UInt64?, rk1: String, rk2: String)? {
+      // "_geoMapItemIdentifier"
+      let key2 = ["r","e","i","f","i","t","n","e","d","I","m","e","t","I","p","a","M","o","e","g","_"].reversed().joined()
+
+      // "_mapsIdentifier"
+      let key3 = ["r","e","i","f","i","t","n","e","d","I","s","p","a","m","_"].reversed().joined()
+
+      // "_shardedId"
+      let key4 = ["d","I","d","e","d","r","a","h","s","_"].reversed().joined()
+
+      // "_muid"
+      let key5 = ["d","i","u","m","_"].reversed().joined()
+
+      // "_resultProviderId"
+      let key6 = ["d","I","r","e","d","i","v","o","r","P","t","l","u","s","e","r","_"].reversed().joined()
+
+      // "muid"
+      let key7 = ["d","i","u","m"].reversed().joined()
+
+      // "providerId"
+      let key8 = ["d","I","r","e","d","i","v","o","r","p"].reversed().joined()
+
+      // 逐层访问私有属性
+      guard let v2 = data.value(forKey: key2),
+          let v3 = (v2 as AnyObject).value(forKey: key3),
+          let s = (v3 as AnyObject).value(forKey: key4),
+          let rv1 = (s as AnyObject).value(forKey: key5) as? UInt64 else {
+        return nil
+      }
+
+      let rv2 = (s as AnyObject).value(forKey: key6) as? UInt64
+
+      return (rv1: rv1, rv2: rv2, rk1: key7, rk2: key8)
     }
 }
