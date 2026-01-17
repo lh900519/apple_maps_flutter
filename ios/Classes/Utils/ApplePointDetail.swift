@@ -149,9 +149,9 @@ class ApplePointDetail {
 
                         // 提取 muid 和 providerId
                         if let ids = extractDatas(from: identifier) {
-                            detailData[ids.rk1] = ids.rv1
+                            detailData[ids.rk1] = "\(ids.rv1)"
                             if let rv2 = ids.rv2 {
-                                detailData[ids.rk2] = rv2
+                                detailData[ids.rk2] = "\(rv2)"
                             }
                         }
                     }

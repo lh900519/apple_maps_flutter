@@ -172,8 +172,8 @@ class ApplePoiDetail {
   final List<String>? urls;
   final String? timeZone;
 
-  final int? muid;
-  final int? providerId;
+  final String? muid;
+  final String? providerId;
 
   /// copyWith
   ApplePoiDetail copyWith({
@@ -198,8 +198,8 @@ class ApplePoiDetail {
     String? phoneNumberParam,
     List<String>? urlsParam,
     String? timeZoneParam,
-    int? muidParam,
-    int? providerIdParam,
+    String? muidParam,
+    String? providerIdParam,
   }) {
     return ApplePoiDetail(
       identifier: identifierParam ?? identifier,
@@ -299,10 +299,10 @@ class ApplePoiDetail {
       phoneNumber: json['phoneNumber'] as String?,
       urls: (json['urls'] as List?)?.map((e) => e.toString()).toList(),
       timeZone: json['timeZone'] as String?,
-      muid: json[["d", "i", "u", "m"].reversed.join()] as int?,
+      muid: json[["d", "i", "u", "m"].reversed.join()] as String?,
       providerId: json[["d", "I", "r", "e", "d", "i", "v", "o", "r", "p"]
           .reversed
-          .join()] as int?,
+          .join()] as String?,
     );
   }
 
