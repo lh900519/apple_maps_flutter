@@ -28,7 +28,7 @@ extension AppleMapController: AnnotationDelegate {
         }
 
         // iOS 16+ 获取更多 POI 信息
-        if #available(iOS 16.0, *), let featureAnnotation = annotation as? MKMapFeatureAnnotation {
+        if let featureAnnotation = annotation as? MKMapFeatureAnnotation {
             poiData["featureType"] = featureAnnotation.featureType.rawValue
             if let pointOfInterestCategory = featureAnnotation.pointOfInterestCategory {
                 poiData["pointOfInterestCategory"] = pointOfInterestCategory.rawValue

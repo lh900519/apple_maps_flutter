@@ -67,15 +67,29 @@ class ApplePointDetail {
         radius: Double,
         completion: @escaping ([[String: Any]]) -> Void
     ) {
-        let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = point
-        request.region = MKCoordinateRegion(
-            center: coordinate,
-            latitudinalMeters: radius,
-            longitudinalMeters: radius
-        )
+        var search: MKLocalSearch?
 
-        let search = MKLocalSearch(request: request)
+        if #available(iOS 14.0, *), point.isEmpty {
+            let request = MKLocalPointsOfInterestRequest(center: coordinate, radius: radius)
+            // request.pointOfInterestFilter = .includingAll
+            print("搜索附近: \(coordinate), \(radius)")
+            search = MKLocalSearch(request: request)
+        } else {
+            let request = MKLocalSearch.Request()
+            request.naturalLanguageQuery = point
+            request.region = MKCoordinateRegion(
+                center: coordinate,
+                latitudinalMeters: radius,
+                longitudinalMeters: radius
+            )
+            search = MKLocalSearch(request: request)
+        }
+
+        guard let search = search else {
+            print("初始化搜索失败")
+            completion([])
+            return
+        }
 
         search.start { response, error in
             var searchList: [[String: Any]] = []
@@ -130,10 +144,10 @@ class ApplePointDetail {
 
                     if let identifier = item.identifier {
                         // "identifier"
-                        let key1 = ["r","e","i","f","i","t","n","e","d","i"].reversed().joined()
+                        let key1 = ["r", "e", "i", "f", "i", "t", "n", "e", "d", "i"].reversed().joined()
                         detailData[key1] = identifier.rawValue
-                        
-                      // 提取 muid 和 providerId
+
+                        // 提取 muid 和 providerId
                         if let ids = extractDatas(from: identifier) {
                             detailData[ids.rk1] = ids.rv1
                             if let rv2 = ids.rv2 {
@@ -168,45 +182,44 @@ class ApplePointDetail {
             completion(searchList)
         }
     }
-  
-  
+
     // MARK: - Helper Methods
 
     /// 从 MKMapItemIdentifier 中提取 muid 和 providerId
     /// - Parameter identifier: MKMapItemIdentifier 实例
     /// - Returns: 包含 muid、providerId 及其 key 的元组，失败返回 nil
-    static private func extractDatas(from data: NSObject) -> (rv1: UInt64, rv2: UInt64?, rk1: String, rk2: String)? {
-      // "_geoMapItemIdentifier"
-      let key2 = ["r","e","i","f","i","t","n","e","d","I","m","e","t","I","p","a","M","o","e","g","_"].reversed().joined()
+    private static func extractDatas(from data: NSObject) -> (rv1: UInt64, rv2: UInt64?, rk1: String, rk2: String)? {
+        // "_geoMapItemIdentifier"
+        let key2 = ["r", "e", "i", "f", "i", "t", "n", "e", "d", "I", "m", "e", "t", "I", "p", "a", "M", "o", "e", "g", "_"].reversed().joined()
 
-      // "_mapsIdentifier"
-      let key3 = ["r","e","i","f","i","t","n","e","d","I","s","p","a","m","_"].reversed().joined()
+        // "_mapsIdentifier"
+        let key3 = ["r", "e", "i", "f", "i", "t", "n", "e", "d", "I", "s", "p", "a", "m", "_"].reversed().joined()
 
-      // "_shardedId"
-      let key4 = ["d","I","d","e","d","r","a","h","s","_"].reversed().joined()
+        // "_shardedId"
+        let key4 = ["d", "I", "d", "e", "d", "r", "a", "h", "s", "_"].reversed().joined()
 
-      // "_muid"
-      let key5 = ["d","i","u","m","_"].reversed().joined()
+        // "_muid"
+        let key5 = ["d", "i", "u", "m", "_"].reversed().joined()
 
-      // "_resultProviderId"
-      let key6 = ["d","I","r","e","d","i","v","o","r","P","t","l","u","s","e","r","_"].reversed().joined()
+        // "_resultProviderId"
+        let key6 = ["d", "I", "r", "e", "d", "i", "v", "o", "r", "P", "t", "l", "u", "s", "e", "r", "_"].reversed().joined()
 
-      // "muid"
-      let key7 = ["d","i","u","m"].reversed().joined()
+        // "muid"
+        let key7 = ["d", "i", "u", "m"].reversed().joined()
 
-      // "providerId"
-      let key8 = ["d","I","r","e","d","i","v","o","r","p"].reversed().joined()
+        // "providerId"
+        let key8 = ["d", "I", "r", "e", "d", "i", "v", "o", "r", "p"].reversed().joined()
 
-      // 逐层访问私有属性
-      guard let v2 = data.value(forKey: key2),
-          let v3 = (v2 as AnyObject).value(forKey: key3),
-          let s = (v3 as AnyObject).value(forKey: key4),
-          let rv1 = (s as AnyObject).value(forKey: key5) as? UInt64 else {
-        return nil
-      }
+        // 逐层访问私有属性
+        guard let v2 = data.value(forKey: key2),
+              let v3 = (v2 as AnyObject).value(forKey: key3),
+              let s = (v3 as AnyObject).value(forKey: key4),
+              let rv1 = (s as AnyObject).value(forKey: key5) as? UInt64 else {
+            return nil
+        }
 
-      let rv2 = (s as AnyObject).value(forKey: key6) as? UInt64
+        let rv2 = (s as AnyObject).value(forKey: key6) as? UInt64
 
-      return (rv1: rv1, rv2: rv2, rk1: key7, rk2: key8)
+        return (rv1: rv1, rv2: rv2, rk1: key7, rk2: key8)
     }
 }
