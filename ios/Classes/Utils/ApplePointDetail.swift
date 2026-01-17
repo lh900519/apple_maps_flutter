@@ -137,7 +137,7 @@ class ApplePointDetail {
                         if let ids = extractDatas(from: identifier) {
                             detailData[ids.rk1] = ids.rv1
                             if let rv2 = ids.rv2 {
-                                detailData[ids.rk1] = rv2
+                                detailData[ids.rk2] = rv2
                             }
                         }
                     }
