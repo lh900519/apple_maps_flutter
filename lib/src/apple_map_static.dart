@@ -5,7 +5,7 @@ class AppleMapsStatic {
       MethodChannel('apple_maps_plugin.luisthein.de/static_methods');
 
   /// reverseGeocode [ApplePoiDetail]
-  Future<ApplePoiDetail?> reverseGeocode(LatLng latLng) async {
+  static Future<ApplePoiDetail?> reverseGeocode(LatLng latLng) async {
     final detail = await _channel
         .invokeMapMethod<String, dynamic>('reverseGeocode', <String, dynamic>{
       'annotation': [latLng.latitude, latLng.longitude]
