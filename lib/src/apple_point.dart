@@ -162,7 +162,7 @@ class ApplePoiDetail {
 
   final List<String>? alternateIdentifiers;
 
-  final String? areasOfInterest;
+  final List<String>? areasOfInterest;
   final String? pointOfInterestCategory;
 
   final String? fullAddress;
@@ -191,7 +191,7 @@ class ApplePoiDetail {
     String? subThoroughfareParam,
     String? thoroughfareParam,
     List<String>? alternateIdentifiersParam,
-    String? areasOfInterestParam,
+    List<String>? areasOfInterestParam,
     String? pointOfInterestCategoryParam,
     String? fullAddressParam,
     String? shortAddressParam,
@@ -292,7 +292,8 @@ class ApplePoiDetail {
       alternateIdentifiers: (json['alternateIdentifiers'] as List?)
           ?.map((e) => e.toString())
           .toList(),
-      areasOfInterest: json['areasOfInterest'] as String?,
+      areasOfInterest:
+          (json['areasOfInterest'] as List?)?.map((e) => e.toString()).toList(),
       pointOfInterestCategory: json['pointOfInterestCategory'] as String?,
       fullAddress: json['fullAddress'] as String?,
       shortAddress: json['shortAddress'] as String?,

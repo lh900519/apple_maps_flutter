@@ -15,7 +15,7 @@ class AppleMapsStatic {
     final data = detail['data'];
     if (data is! Map) return null;
 
-    return ApplePoiDetail.fromJson(detail['data']);
+    return ApplePoiDetail.fromJson(data);
   }
 
   /// searchRegion [ApplePoiDetail]
