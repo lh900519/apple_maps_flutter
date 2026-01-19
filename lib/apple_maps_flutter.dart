@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
+part 'src/apple_map_static.dart';
 part 'src/annotation.dart';
 part 'src/annotation_updates.dart';
 part 'src/apple_map.dart';
