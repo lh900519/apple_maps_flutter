@@ -65,6 +65,7 @@ class ApplePointDetail {
         point: String,
         coordinate: CLLocationCoordinate2D,
         radius: Double,
+        priority: Int = 0,
         completion: @escaping ([[String: Any]]) -> Void
     ) {
         var search: MKLocalSearch?
@@ -82,6 +83,14 @@ class ApplePointDetail {
                 latitudinalMeters: radius,
                 longitudinalMeters: radius
             )
+          
+          
+            if #available(iOS 18.0, *) {
+              if let priority = MKLocalSearchRegionPriority(rawValue: priority) {
+                  request.regionPriority = priority
+              }
+            }
+          
             search = MKLocalSearch(request: request)
         }
 

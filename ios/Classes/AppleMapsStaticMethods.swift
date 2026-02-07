@@ -60,7 +60,8 @@ public class AppleMapsStaticMethods: NSObject {
             let annotation = args["annotation"] as? [Double],
             annotation.count == 2,
             let search = args["search"] as? String,
-            let radius = args["radius"] as? Double
+            let radius = args["radius"] as? Double,
+            let priority = args["priority"] as? Int
         else {
             DispatchQueue.main.async {
                 result([])
@@ -76,7 +77,8 @@ public class AppleMapsStaticMethods: NSObject {
         ApplePointDetail.searchRegion(
             point: search,
             coordinate: coordinate,
-            radius: radius
+            radius: radius,
+            priority: priority
         ) { list in
             DispatchQueue.main.async {
                 result(["data": list])

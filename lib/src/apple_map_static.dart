@@ -22,13 +22,15 @@ class AppleMapsStatic {
   static Future<List<ApplePoiDetail>?> searchRegion(
     LatLng latLng,
     String search,
-    double radius,
-  ) async {
+    double radius, {
+    int priority = 0,
+  }) async {
     final list = await _channel
         .invokeMapMethod<String, dynamic>('searchRegion', <String, dynamic>{
       'annotation': [latLng.latitude, latLng.longitude],
       'search': search,
       'radius': radius,
+      'priority': priority,
     });
 
     if (list == null || !list.containsKey('data')) return null;
