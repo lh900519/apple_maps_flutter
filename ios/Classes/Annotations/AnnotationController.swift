@@ -46,6 +46,43 @@ extension AppleMapController: AnnotationDelegate {
         channel.invokeMethod("applePoint#selected", arguments: poiData)
     }
 
+    // iOS26 及以下都会触发 取消选中
+    public func mapView(_ mapView: MKMapView, didDeselect annotation: any MKAnnotation) {
+        guard #available(iOS 26.0, *) else { return }
+        // 排除用户位置
+        guard !(annotation is MKUserLocation) else { return }
+
+        // 准备发送到 Flutter 的数据
+        var poiData: [String: Any] = [
+            "latitude": annotation.coordinate.latitude,
+            "longitude": annotation.coordinate.longitude,
+        ]
+        if let title = annotation.title {
+            poiData["title"] = title ?? ""
+        }
+        if let subtitle = annotation.subtitle {
+            poiData["subtitle"] = subtitle ?? ""
+        }
+
+        // iOS 16+ 获取更多 POI 信息
+        if let featureAnnotation = annotation as? MKMapFeatureAnnotation {
+            poiData["featureType"] = featureAnnotation.featureType.rawValue
+            if let pointOfInterestCategory = featureAnnotation.pointOfInterestCategory {
+                poiData["pointOfInterestCategory"] = pointOfInterestCategory.rawValue
+            }
+
+            if let iconStyle = featureAnnotation.iconStyle {
+                if let imageData = iconStyle.image.pngData() {
+                    poiData["iconStyleImage"] = imageData
+                }
+                poiData["iconStyleBackgroundColor"] = iconStyle.backgroundColor.toARGBInt()
+            }
+        }
+
+        // 发送事件到 Flutter
+        channel.invokeMethod("applePoint#deSelected", arguments: poiData)
+    }
+
     // iOS26+ 不触发
     public func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         if let annotation: FlutterAnnotation = view.annotation as? FlutterAnnotation {
@@ -107,7 +144,7 @@ extension AppleMapController: AnnotationDelegate {
         }
     }
 
-    // 取消选中时重置 isSelected 并移除边框
+    // // iOS26+ 不触发 取消选中
     public func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
         if let annotation: FlutterAnnotation = view.annotation as? FlutterAnnotation {
             annotation.selectedProgrammatically = false
