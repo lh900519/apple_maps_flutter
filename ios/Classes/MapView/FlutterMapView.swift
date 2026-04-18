@@ -148,6 +148,13 @@ class FlutterMapView: MKMapView, UIGestureRecognizerDelegate {
             self.mapType = self.mapTypes[mapType]
         }
         
+        // Set Dark Mode
+        if let _darkEnabled: Bool = options["darkEnabled"] as? Bool {
+            if #available(iOS 13.0, *) {
+              self.overrideUserInterfaceStyle = _darkEnabled ? .dark : .light
+            }
+        }
+      
         if let trafficEnabled: Bool = options["trafficEnabled"] as? Bool {
             if #available(iOS 9.0, *) {
                 self.showsTraffic = trafficEnabled
