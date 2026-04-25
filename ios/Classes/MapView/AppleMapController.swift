@@ -117,6 +117,10 @@ public class AppleMapController: NSObject, FlutterPlatformView {
                     self.takeSnapshot(options: SnapshotOptions.init(options: args), onCompletion: { (snapshot: FlutterStandardTypedData?, error: Error?) -> Void in
                         result(snapshot ?? error)
                     })
+                case "map#route":
+                    self.mapRoute(args: args)
+                    result(nil)
+                    break
                 default:
                     result(FlutterMethodNotImplemented)
                     break
@@ -313,9 +317,19 @@ extension AppleMapController: MKMapViewDelegate {
             return self.polygonRenderer(overlay: overlay)
         } else if overlay is FlutterCircle {
             return self.circleRenderer(overlay: overlay)
-        }
+        } else if let polyline = overlay as? MKPolyline {
+          // 👉 MapKit 路线
+          let renderer = MKPolylineRenderer(polyline: polyline)
+          renderer.strokeColor = .systemBlue
+          renderer.lineWidth = 5
+          renderer.lineJoin = .round
+          renderer.lineCap = .round
+          return renderer
+      }
         return MKOverlayRenderer()
     }
+  
+  
 }
 
 extension AppleMapController {
@@ -412,4 +426,58 @@ extension AppleMapController {
         }
         
     }
+  
+    // mapRoute
+    private func mapRoute(args: Dictionary<String, Any>) {
+      guard let source = args["source"] as? [CLLocationDegrees],
+            let destination = args["destination"] as? [CLLocationDegrees],
+            source.count >= 2,
+            destination.count >= 2 else {
+          return
+      }
+
+      let request = MKDirections.Request()
+
+      request.source = MKMapItem(
+          placemark: MKPlacemark(
+              coordinate: CLLocationCoordinate2D(latitude: source[0], longitude: source[1])
+          )
+      )
+
+      request.destination = MKMapItem(
+          placemark: MKPlacemark(
+              coordinate: CLLocationCoordinate2D(latitude: destination[0], longitude: destination[1])
+          )
+      )
+
+      let typeStr = args["transportType"] as? String ?? "automobile"
+      let type: MKDirectionsTransportType
+      switch typeStr {
+      case "walking":
+          type = .walking
+      case "transit":
+          type = .transit
+      default:
+          type = .automobile
+      }
+
+      request.transportType = type
+
+      // 清除旧路线
+      self.mapView.removeOverlays(self.mapView.overlays)
+
+      let directions = MKDirections(request: request)
+      directions.calculate { response, error in
+          guard let route = response?.routes.first else { return }
+
+          self.mapView.addOverlay(route.polyline)
+
+          // 自动缩放
+          self.mapView.setVisibleMapRect(
+              route.polyline.boundingMapRect,
+              edgePadding: UIEdgeInsets(top: 40, left: 20, bottom: 40, right: 20),
+              animated: true
+          )
+      }
+  }
 }

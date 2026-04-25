@@ -250,4 +250,18 @@ class AppleMapController {
     return channel.invokeMethod<Uint8List>(
         'map#takeSnapshot', snapshotOptions._toMap());
   }
+
+  /// Map route
+  /// type walking|transit|automobile, default automobile
+  Future<void> mapRoute(
+    LatLng source,
+    LatLng destination, {
+    String? type,
+  }) async {
+    await channel.invokeMethod<void>('map#route', <String, dynamic>{
+      'source': source._toJson(),
+      'destination': destination._toJson(),
+      if (type != null) 'type': type,
+    });
+  }
 }
