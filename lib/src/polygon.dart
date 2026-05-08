@@ -44,6 +44,7 @@ class Polygon {
     this.strokeColor = Colors.black,
     this.strokeWidth = 10,
     this.visible = true,
+    this.hole = false,
     this.zIndex,
     this.onTap,
   });
@@ -87,6 +88,9 @@ class Polygon {
   /// Callbacks to receive tap events for polygon placed on this map.
   final VoidCallback? onTap;
 
+  /// True if the mask is enable.
+  final bool hole;
+
   /// Creates a new [Polygon] object whose values are the same as this instance,
   /// unless overwritten by the specified parameters.
   Polygon copyWith({
@@ -96,6 +100,7 @@ class Polygon {
     Color? fillColorParam,
     int? strokeWidthParam,
     bool? visibleParam,
+    bool? holeParam,
     int? zIndexParam,
     VoidCallback? onTapParam,
   }) {
@@ -107,6 +112,7 @@ class Polygon {
       fillColor: fillColorParam ?? fillColor,
       strokeWidth: strokeWidthParam ?? strokeWidth,
       visible: visibleParam ?? visible,
+      hole: holeParam ?? hole,
       zIndex: zIndexParam ?? zIndex,
       onTap: onTapParam ?? onTap,
     );
@@ -132,6 +138,7 @@ class Polygon {
     addIfPresent('strokeColor', strokeColor.value);
     addIfPresent('strokeWidth', strokeWidth);
     addIfPresent('visible', visible);
+    addIfPresent('hole', hole);
     addIfPresent('zIndex', zIndex);
 
     json['points'] = _pointsToJson();
@@ -149,6 +156,7 @@ class Polygon {
         fillColor == typedOther.fillColor &&
         listEquals(points, typedOther.points) &&
         visible == typedOther.visible &&
+        hole == typedOther.hole &&
         strokeColor == typedOther.strokeColor &&
         strokeWidth == typedOther.strokeWidth &&
         zIndex == typedOther.zIndex &&
@@ -171,8 +179,12 @@ Map<PolygonId, Polygon> _keyByPolygonId(Iterable<Polygon>? polygons) {
   if (polygons == null) {
     return <PolygonId, Polygon>{};
   }
-  return Map<PolygonId, Polygon>.fromEntries(polygons.map((Polygon polygon) =>
-      MapEntry<PolygonId, Polygon>(polygon.polygonId, polygon.clone())));
+  return Map<PolygonId, Polygon>.fromEntries(
+    polygons.map(
+      (Polygon polygon) =>
+          MapEntry<PolygonId, Polygon>(polygon.polygonId, polygon.clone()),
+    ),
+  );
 }
 
 List<Map<String, dynamic>>? _serializePolygonSet(Set<Polygon>? polygons) {

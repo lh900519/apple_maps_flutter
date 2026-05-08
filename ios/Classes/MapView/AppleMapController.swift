@@ -19,7 +19,14 @@ public class AppleMapController: NSObject, FlutterPlatformView {
     var snapShotOptions: MKMapSnapshotter.Options = MKMapSnapshotter.Options()
     var snapShot: MKMapSnapshotter?
     var darkEnabled: Bool?
+  
+    // MARK: - 全局遮罩管理
+      
+    /// 当前所有需要"点亮"的 polygon 数据
+    var highlightPolygonMap: [String: FlutterPolygon] = [:]
+    let maskPolygonId = "polygon_id_mask"
     
+  
     public init(withFrame frame: CGRect, withRegistrar registrar: FlutterPluginRegistrar, withargs args: Dictionary<String, Any> ,withId id: Int64) {
         self.options = args["options"] as! [String: Any]
         self.channel = FlutterMethodChannel(name: "apple_maps_plugin.luisthein.de/apple_maps_\(id)", binaryMessenger: registrar.messenger())

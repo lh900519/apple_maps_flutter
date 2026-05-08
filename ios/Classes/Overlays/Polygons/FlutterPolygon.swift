@@ -17,6 +17,9 @@ class FlutterPolygon: MKPolygon {
     var id: String?
     var zIndex: Int? = -1
     var coordinates: [CLLocationCoordinate2D]?
+  
+    /// 是否启用遮罩模式（true = 该 polygon 会在全局遮罩上挖孔显示）
+    var hole: Bool = false
     
     convenience init(fromDictionaray polygonData: Dictionary<String, Any>) {
         let points = polygonData["points"] as! NSArray
@@ -35,6 +38,9 @@ class FlutterPolygon: MKPolygon {
         self.id = polygonData["polygonId"] as? String
         self.isVisible = polygonData["visible"] as? Bool
         self.zIndex = polygonData["zIndex"] as? Int
+      
+        // 从 Flutter 传入的数据中读取
+        self.hole = polygonData["hole"] as? Bool ?? false
     }
     
     static func == (lhs: FlutterPolygon, rhs: FlutterPolygon) -> Bool {
