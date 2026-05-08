@@ -12,6 +12,10 @@ extension AppleMapController: AnnotationDelegate {
     // iOS26 及以下都会触发
     public func mapView(_ mapView: MKMapView, didSelect annotation: any MKAnnotation) {
         guard #available(iOS 26.0, *) else { return }
+      
+        // 过滤野指针 26.4+ 会返回空指针的情况
+        guard let annotation = annotation as? NSObject & MKAnnotation else { return }
+
         // 排除用户位置
         guard !(annotation is MKUserLocation) else { return }
 
