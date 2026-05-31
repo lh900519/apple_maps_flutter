@@ -104,15 +104,15 @@ class ApplePoint {
 
   @override
   int get hashCode => Object.hash(
-        title,
-        subtitle,
-        latitude,
-        longitude,
-        featureType,
-        pointOfInterestCategory,
-        iconStyleImage,
-        iconStyleBackgroundColor,
-      );
+    title,
+    subtitle,
+    latitude,
+    longitude,
+    featureType,
+    pointOfInterestCategory,
+    iconStyleImage,
+    iconStyleBackgroundColor,
+  );
 }
 
 @immutable
@@ -136,6 +136,8 @@ class ApplePoiDetail {
     this.pointOfInterestCategory,
     this.fullAddress,
     this.shortAddress,
+    this.cityName,
+    this.citywithContext,
     this.phoneNumber,
     this.urls,
     this.timeZone,
@@ -168,6 +170,9 @@ class ApplePoiDetail {
   final String? fullAddress;
   final String? shortAddress;
 
+  final String? cityName;
+  final String? citywithContext;
+
   final String? phoneNumber;
   final List<String>? urls;
   final String? timeZone;
@@ -195,6 +200,8 @@ class ApplePoiDetail {
     String? pointOfInterestCategoryParam,
     String? fullAddressParam,
     String? shortAddressParam,
+    String? cityNameParam,
+    String? citywithContextParam,
     String? phoneNumberParam,
     List<String>? urlsParam,
     String? timeZoneParam,
@@ -222,6 +229,8 @@ class ApplePoiDetail {
           pointOfInterestCategoryParam ?? pointOfInterestCategory,
       fullAddress: fullAddressParam ?? fullAddress,
       shortAddress: shortAddressParam ?? shortAddress,
+      cityName: cityNameParam ?? cityName,
+      citywithContext: citywithContextParam ?? citywithContext,
       phoneNumber: phoneNumberParam ?? phoneNumber,
       urls: urlsParam ?? urls,
       timeZone: timeZoneParam ?? timeZone,
@@ -261,6 +270,8 @@ class ApplePoiDetail {
     addIfPresent('pointOfInterestCategory', pointOfInterestCategory);
     addIfPresent('fullAddress', fullAddress);
     addIfPresent('shortAddress', shortAddress);
+    addIfPresent('cityName', cityName);
+    addIfPresent('citywithContext', citywithContext);
     addIfPresent('phoneNumber', phoneNumber);
     addIfPresent('urls', urls);
     addIfPresent('timeZone', timeZone);
@@ -297,6 +308,8 @@ class ApplePoiDetail {
       pointOfInterestCategory: json['pointOfInterestCategory'] as String?,
       fullAddress: json['fullAddress'] as String?,
       shortAddress: json['shortAddress'] as String?,
+      cityName: json['cityName'] as String?,
+      citywithContext: json['citywithContext'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
       urls: (json['urls'] as List?)?.map((e) => e.toString()).toList(),
       timeZone: json['timeZone'] as String?,
@@ -330,6 +343,8 @@ class ApplePoiDetail {
         pointOfInterestCategory == other.pointOfInterestCategory &&
         fullAddress == other.fullAddress &&
         shortAddress == other.shortAddress &&
+        cityName == other.cityName &&
+        citywithContext == other.citywithContext &&
         phoneNumber == other.phoneNumber &&
         listEquals(urls, other.urls) &&
         timeZone == other.timeZone &&

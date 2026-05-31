@@ -183,6 +183,12 @@ class ApplePointDetail {
                         detailData["fullAddress"] = address.fullAddress
                         detailData["shortAddress"] = address.shortAddress ?? ""
                     }
+
+                    if let reps = item.addressRepresentations {
+                        // POI 地址
+                        detailData["cityName"] = reps.cityName ?? ""
+                        detailData["citywithContext"] = reps.cityWithContext ?? ""
+                    }
                 }
 
                 searchList.append(detailData)
