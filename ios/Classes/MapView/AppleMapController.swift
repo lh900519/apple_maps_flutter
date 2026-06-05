@@ -347,6 +347,7 @@ extension AppleMapController {
         snapShotOptions.scale = UIScreen.main.scale
         snapShotOptions.showsBuildings = options.showBuildings
         snapShotOptions.showsPointsOfInterest = options.showPointsOfInterest
+        snapShotOptions.mapType = self.mapView.mapType
       
         if self.darkEnabled != nil {
             if #available(iOS 13.0, *) {
