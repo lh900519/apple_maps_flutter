@@ -211,27 +211,96 @@ class FlutterMapView: MKMapView, UIGestureRecognizerDelegate {
             }
         }
         
-        // Enable point selection
-        if let _userPoint: Bool = options["userPoint"] as? Bool {
-            if #available(iOS 16.0, *) {
-                let config = MKStandardMapConfiguration(
-                    elevationStyle: .realistic, // 地形样式 开启 3D 地形效果
-                    emphasisStyle: .default // 强调样式
-                )
-                // 显示所有类型的 Point
-                config.pointOfInterestFilter = .includingAll
-                // Point 支持点击
-                self.selectableMapFeatures = [.pointsOfInterest, .territories]
+        if let mapFeatureConfig = options["mapFeatureConfig"] as? Dictionary<String, Any> {
+            self.configureMapFeatureConfig(mapFeatureConfig, trafficEnabled: options["trafficEnabled"] as? Bool)
+        }
+    }
 
-                self.preferredConfiguration = config
+    private func configureMapFeatureConfig(_ options: Dictionary<String, Any>, trafficEnabled: Bool?) {
+        guard #available(iOS 16.0, *) else {
+            return
+        }
+
+        let config = MKStandardMapConfiguration(
+            elevationStyle: self.mapElevationStyle(from: options["elevationStyle"] as? String),
+            emphasisStyle: self.mapEmphasisStyle(from: options["emphasisStyle"] as? String)
+        )
+        config.pointOfInterestFilter = self.pointOfInterestFilter(from: options["pointOfInterestFilter"])
+        if let trafficEnabled = trafficEnabled {
+            config.showsTraffic = trafficEnabled
+        }
+
+        self.selectableMapFeatures = self.selectableMapFeatures(from: options["selectableFeatures"] as? Array<String>)
+        self.preferredConfiguration = config
+    }
+
+    @available(iOS 16.0, *)
+    private func mapElevationStyle(from value: String?) -> MKMapConfiguration.ElevationStyle {
+        switch value {
+        case "flat":
+            return .flat
+        case "realistic":
+            return .realistic
+        default:
+            return .realistic
+        }
+    }
+
+    @available(iOS 16.0, *)
+    private func mapEmphasisStyle(from value: String?) -> MKStandardMapConfiguration.EmphasisStyle {
+        switch value {
+        case "muted":
+            return .muted
+        case "defaultStyle":
+            return .default
+        default:
+            return .default
+        }
+    }
+
+    @available(iOS 16.0, *)
+    private func selectableMapFeatures(from values: Array<String>?) -> MKMapFeatureOptions {
+        guard let values = values else {
+            return [.pointsOfInterest, .territories]
+        }
+
+        var features: MKMapFeatureOptions = []
+        for value in values {
+            switch value {
+            case "pointsOfInterest":
+                features.insert(.pointsOfInterest)
+            case "territories":
+                features.insert(.territories)
+            case "physicalFeatures":
+                features.insert(.physicalFeatures)
+            default:
+                break
             }
-          
-            // 设置手势识别器代理
-            //   if let gestureRecognizers = self.gestureRecognizers {
-            //     for recognizer in gestureRecognizers {
-            //        recognizer.delegate = self
-            //    }
-            // }
+        }
+        return features
+    }
+
+    @available(iOS 16.0, *)
+    private func pointOfInterestFilter(from value: Any?) -> MKPointOfInterestFilter? {
+        guard let data = value as? Dictionary<String, Any>,
+              let mode = data["mode"] as? String else {
+            return .includingAll
+        }
+
+        let categories = (data["categories"] as? Array<String> ?? [])
+            .map { MKPointOfInterestCategory(rawValue: $0) }
+
+        switch mode {
+        case "excludingAll":
+            return .excludingAll
+        case "including":
+            return MKPointOfInterestFilter(including: categories)
+        case "excluding":
+            return MKPointOfInterestFilter(excluding: categories)
+        case "includingAll":
+            return .includingAll
+        default:
+            return .includingAll
         }
     }
     

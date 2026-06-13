@@ -23,7 +23,7 @@ class AppleMap extends StatefulWidget {
     this.compassEnabled = true,
     this.trafficEnabled = false,
     this.darkEnabled,
-    this.userPoint,
+    this.mapFeatureConfig,
     this.mapType = MapType.standard,
     this.minMaxZoomPreference = MinMaxZoomPreference.unbounded,
     this.trackingMode = TrackingMode.none,
@@ -63,8 +63,8 @@ class AppleMap extends StatefulWidget {
   /// Dark Mode
   final bool? darkEnabled;
 
-  // Use apple's poi data, only supports iOS16
-  final bool? userPoint;
+  /// Use Apple's selectable map feature/POI data. Only supported on iOS 16+.
+  final AppleMapFeatureConfig? mapFeatureConfig;
 
   /// Type of map tiles to be rendered.
   final MapType mapType;
@@ -357,7 +357,7 @@ class _AppleMapOptions {
     this.trafficEnabled,
     this.mapType,
     this.darkEnabled,
-    this.userPoint,
+    this.mapFeatureConfig,
     this.minMaxZoomPreference,
     this.rotateGesturesEnabled,
     this.scrollGesturesEnabled,
@@ -376,7 +376,7 @@ class _AppleMapOptions {
       trafficEnabled: map.trafficEnabled,
       mapType: map.mapType,
       darkEnabled: map.darkEnabled,
-      userPoint: map.userPoint,
+      mapFeatureConfig: map.mapFeatureConfig,
       minMaxZoomPreference: map.minMaxZoomPreference,
       rotateGesturesEnabled: map.rotateGesturesEnabled,
       scrollGesturesEnabled: map.scrollGesturesEnabled,
@@ -398,7 +398,7 @@ class _AppleMapOptions {
 
   final bool? darkEnabled;
 
-  final bool? userPoint;
+  final AppleMapFeatureConfig? mapFeatureConfig;
 
   final MinMaxZoomPreference? minMaxZoomPreference;
 
@@ -433,7 +433,7 @@ class _AppleMapOptions {
     addIfNonNull('trafficEnabled', trafficEnabled);
     addIfNonNull('mapType', mapType?.index);
     addIfNonNull('darkEnabled', darkEnabled);
-    addIfNonNull('userPoint', userPoint);
+    addIfNonNull('mapFeatureConfig', mapFeatureConfig?._toJson());
     addIfNonNull('minMaxZoomPreference', minMaxZoomPreference?._toJson());
     addIfNonNull('rotateGesturesEnabled', rotateGesturesEnabled);
     addIfNonNull('scrollGesturesEnabled', scrollGesturesEnabled);

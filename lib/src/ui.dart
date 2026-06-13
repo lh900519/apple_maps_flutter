@@ -42,6 +42,162 @@ enum TrackingMode {
   followWithHeading,
 }
 
+/// Elevation style for iOS 16+ `MKStandardMapConfiguration`.
+enum AppleMapElevationStyle { flat, realistic }
+
+/// Emphasis style for iOS 16+ `MKStandardMapConfiguration`.
+enum AppleMapEmphasisStyle { defaultStyle, muted }
+
+/// Selectable native map feature types. Only supported on iOS 16+.
+enum AppleMapSelectableFeature {
+  pointsOfInterest,
+  territories,
+  physicalFeatures,
+}
+
+/// POI filter mode for iOS 16+ `MKStandardMapConfiguration`.
+enum ApplePointOfInterestFilterMode {
+  includingAll,
+  excludingAll,
+  including,
+  excluding,
+}
+
+/// Filter for native Apple points of interest.
+///
+/// Category values should use MapKit raw values such as
+/// `MKPOICategoryRestaurant`, matching the values returned by
+/// [ApplePoint.pointOfInterestCategory].
+class ApplePointOfInterestFilter {
+  const ApplePointOfInterestFilter._(this.mode, [this.categories = const []]);
+
+  const ApplePointOfInterestFilter.includingAll()
+      : this._(ApplePointOfInterestFilterMode.includingAll);
+
+  const ApplePointOfInterestFilter.excludingAll()
+      : this._(ApplePointOfInterestFilterMode.excludingAll);
+
+  const ApplePointOfInterestFilter.including(List<String> categories)
+      : this._(ApplePointOfInterestFilterMode.including, categories);
+
+  const ApplePointOfInterestFilter.excluding(List<String> categories)
+      : this._(ApplePointOfInterestFilterMode.excluding, categories);
+
+  final ApplePointOfInterestFilterMode mode;
+
+  final List<String> categories;
+
+  dynamic _toJson() => <String, dynamic>{
+        'mode': _pointOfInterestFilterModeName(mode),
+        'categories': categories,
+      };
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ApplePointOfInterestFilter) return false;
+    final ApplePointOfInterestFilter typedOther = other;
+    return mode == typedOther.mode &&
+        listEquals(categories, typedOther.categories);
+  }
+
+  @override
+  int get hashCode => Object.hash(mode, Object.hashAll(categories));
+}
+
+/// iOS 16+ native Apple map feature and POI configuration.
+///
+/// This maps to `MKStandardMapConfiguration` and `selectableMapFeatures`.
+class AppleMapFeatureConfig {
+  const AppleMapFeatureConfig({
+    this.elevationStyle = AppleMapElevationStyle.realistic,
+    this.emphasisStyle = AppleMapEmphasisStyle.defaultStyle,
+    this.pointOfInterestFilter =
+        const ApplePointOfInterestFilter.includingAll(),
+    this.selectableFeatures = const <AppleMapSelectableFeature>[
+      AppleMapSelectableFeature.pointsOfInterest,
+      AppleMapSelectableFeature.territories,
+    ],
+  });
+
+  final AppleMapElevationStyle elevationStyle;
+
+  final AppleMapEmphasisStyle emphasisStyle;
+
+  final ApplePointOfInterestFilter? pointOfInterestFilter;
+
+  final List<AppleMapSelectableFeature> selectableFeatures;
+
+  dynamic _toJson() => <String, dynamic>{
+        'elevationStyle': _mapElevationStyleName(elevationStyle),
+        'emphasisStyle': _mapEmphasisStyleName(emphasisStyle),
+        'pointOfInterestFilter': pointOfInterestFilter?._toJson(),
+        'selectableFeatures':
+            selectableFeatures.map(_selectableFeatureName).toList(),
+      };
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! AppleMapFeatureConfig) return false;
+    final AppleMapFeatureConfig typedOther = other;
+    return elevationStyle == typedOther.elevationStyle &&
+        emphasisStyle == typedOther.emphasisStyle &&
+        pointOfInterestFilter == typedOther.pointOfInterestFilter &&
+        listEquals(selectableFeatures, typedOther.selectableFeatures);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        elevationStyle,
+        emphasisStyle,
+        pointOfInterestFilter,
+        Object.hashAll(selectableFeatures),
+      );
+}
+
+String _mapElevationStyleName(AppleMapElevationStyle style) {
+  switch (style) {
+    case AppleMapElevationStyle.flat:
+      return 'flat';
+    case AppleMapElevationStyle.realistic:
+      return 'realistic';
+  }
+}
+
+String _mapEmphasisStyleName(AppleMapEmphasisStyle style) {
+  switch (style) {
+    case AppleMapEmphasisStyle.defaultStyle:
+      return 'defaultStyle';
+    case AppleMapEmphasisStyle.muted:
+      return 'muted';
+  }
+}
+
+String _selectableFeatureName(AppleMapSelectableFeature feature) {
+  switch (feature) {
+    case AppleMapSelectableFeature.pointsOfInterest:
+      return 'pointsOfInterest';
+    case AppleMapSelectableFeature.territories:
+      return 'territories';
+    case AppleMapSelectableFeature.physicalFeatures:
+      return 'physicalFeatures';
+  }
+}
+
+String _pointOfInterestFilterModeName(ApplePointOfInterestFilterMode mode) {
+  switch (mode) {
+    case ApplePointOfInterestFilterMode.includingAll:
+      return 'includingAll';
+    case ApplePointOfInterestFilterMode.excludingAll:
+      return 'excludingAll';
+    case ApplePointOfInterestFilterMode.including:
+      return 'including';
+    case ApplePointOfInterestFilterMode.excluding:
+      return 'excluding';
+  }
+}
+
 /// Bounds for the map camera target.
 // Used with [AppleMapOptions] to wrap a [LatLngBounds] value. This allows
 // distinguishing between specifying an unbounded target (null `LatLngBounds`)
