@@ -1,32 +1,65 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  This repository is apple_maps_flutter, a Flutter plugin that exposes an
+  Apple Maps widget through Flutter platform views.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Tech stack and scope:
+  - Dart and Flutter for the public API, platform-view integration, and tests.
+  - Swift and MapKit for the iOS implementation under ios/Classes/.
+  - The plugin has no Android implementation; the example app is under example/.
+  - The package supports Dart >=2.14.0 <3.0.0 and Flutter >=1.17.0. Preserve
+    compatibility with this range unless a change explicitly updates it.
+  - Public map features include camera control, annotations, overlays, user
+    location, snapshots, and map interaction callbacks.
 
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+  Repository conventions:
+  - Keep changes focused and preserve the existing public API unless the change
+    explicitly requires a breaking change.
+  - Treat Dart and Swift as separate layers with an explicit platform-channel
+    or platform-view contract between them.
+  - Update documentation, example usage, and changelog entries when a public
+    behavior or API changes.
+  - Prefer the smallest compatible implementation and follow existing naming,
+    formatting, and null-safety conventions in nearby code.
+
+  Validation:
+  - Run flutter analyze for Dart changes and flutter test for behavior changes.
+  - For iOS changes, verify the example project can build when the local
+    environment supports Xcode and the required iOS SDK.
+  - Review generated files and platform-specific changes separately; do not
+    commit build artifacts or machine-local metadata.
+
+rules:
+  proposal:
+    - State the user-visible problem and the intended outcome clearly.
+    - Identify affected Dart, iOS, example, test, and documentation surfaces.
+    - Call out compatibility, platform limitations, and breaking-change risks.
+    - Include explicit non-goals for behavior that is intentionally unchanged.
+  design:
+    - Describe the public API, platform-channel or platform-view contract, and data flow.
+    - Explain lifecycle, synchronization, error handling, and backward-compatibility decisions.
+    - Separate Flutter-side behavior from Swift/MapKit behavior.
+    - Include testing and manual verification considerations for iOS-specific behavior.
+  specs:
+    - Use precise, observable requirements with concrete examples where useful.
+    - Cover the normal path, invalid or edge-case inputs, and platform limitations.
+    - Keep requirements aligned with the current Dart SDK and Flutter support range.
+  tasks:
+    - Break work into independently verifiable implementation steps.
+    - Name the relevant files or directories and include tests for behavior changes.
+    - Include documentation or changelog updates when the public behavior changes.
+    - Keep platform-specific work explicit and avoid bundling unrelated refactors.
+
+operations:
+  apply:
+    guidance:
+      - Read the proposal, design, specs, and tasks before editing code.
+      - Preserve unrelated user changes and inspect the diff before finishing.
+      - Run the narrowest relevant validation, then report any environment-limited checks.
+      - Keep task status synchronized with the implementation and verification results.
+  archive:
+    guidance:
+      - Confirm all tasks are complete and the implementation matches the final specs.
+      - Verify that delta specs are synchronized or intentionally retained before archiving.
+      - Summarize validation results and any known iOS-environment limitations.
