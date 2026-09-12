@@ -7,28 +7,39 @@
 
 import Foundation
 import MapKit
+import UIKit
 
 class FlutterAnnotation2View: MKAnnotationView {
-  private let containerView = UIView()
-  private let imageView = UIImageView()
+  private let displayContainerView = UIView()
+  private let bubbleView = UIView()
+  private let blurView = UIVisualEffectView(
+    effect: UIBlurEffect(style: .systemMaterialLight)
+  )
   private let titleLabel = UILabel()
-  private let triangleView = UIView()
+  private let pointView = UIView()
+  private let countLabel = UILabel()
 
-  // 最大尺寸
-  private let maxContainerWidth: CGFloat = 96
-  private let maxContainerHeight: CGFloat = 32
-  // 图像和间距的固定值
-  private let imageWidth: CGFloat = 14
-  private let imagePadding: CGFloat = 4
-  private let labelPadding: CGFloat = 4
-  
-  // 字体大小
-  private let fontSize: CGFloat = 10
-      
+  private let maxAnnotationWidth: CGFloat = 260
+  private let maxAnnotationHeight: CGFloat = 180
+  private let maxBubbleWidth: CGFloat = 220
+  private let maxBubbleHeight: CGFloat = 60
+  private let minBubbleHeight: CGFloat = 36
+  private let bubbleHorizontalPadding: CGFloat = 8
+  private let bubbleVerticalPadding: CGFloat = 4
+  private let bubblePointGap: CGFloat = 8
+  private let plainPointDiameter: CGFloat = 11
+  private let plainPointBorderWidth: CGFloat = 2
+  private let countPointHeight: CGFloat = 20
+  private let countPointMinimumWidth: CGFloat = 20
+  private let countPointHorizontalPadding: CGFloat = 12
+  private let countPointBorderWidth: CGFloat = 1
+  private let titleFontSize: CGFloat = 13
+  private let countFontSize: CGFloat = 13
 
-  // 存储动态宽高约束
-  private var containerWidthConstraint: NSLayoutConstraint!
-  private var containerHeightConstraint: NSLayoutConstraint!
+  private var bubbleWidthConstraint: NSLayoutConstraint!
+  private var bubbleHeightConstraint: NSLayoutConstraint!
+  private var pointWidthConstraint: NSLayoutConstraint!
+  private var pointHeightConstraint: NSLayoutConstraint!
 
   override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
     super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
@@ -41,97 +52,164 @@ class FlutterAnnotation2View: MKAnnotationView {
   }
 
   private func setupView() {
-    // 设置基本属性
     canShowCallout = true
-    frame = CGRect(x: 0, y: 0, width: maxContainerWidth, height: maxContainerHeight)
+    frame = CGRect(
+      x: 0,
+      y: 0,
+      width: maxAnnotationWidth,
+      height: maxAnnotationHeight
+    )
 
-    // 设置容器视图
-    containerView.backgroundColor = UIColor.white
-    containerView.layer.cornerRadius = 8
-    containerView.layer.shadowColor = UIColor.black.cgColor
-    containerView.layer.shadowOffset = CGSize(width: 0, height: 2)
-    containerView.layer.shadowOpacity = 0.1
-    containerView.layer.shadowRadius = 4
+    bubbleView.layer.cornerRadius = 12
+    bubbleView.layer.shadowColor = UIColor.black.cgColor
+    bubbleView.layer.shadowOffset = CGSize(width: 0, height: 2)
+    bubbleView.layer.shadowOpacity = 0.12
+    bubbleView.layer.shadowRadius = 5
 
-    // 设置图像视图
-    imageView.contentMode = .scaleAspectFit
-    imageView.layer.masksToBounds = true
+    blurView.layer.cornerRadius = 12
+    blurView.clipsToBounds = true
+    blurView.contentView.backgroundColor = UIColor(
+      white: 1,
+      alpha: 179.0 / 255.0
+    )
 
-    // 设置标题标签
-    titleLabel.font = UIFont.systemFont(ofSize: fontSize, weight: .medium)
-    titleLabel.textColor = UIColor.black
+    titleLabel.font = UIFont.systemFont(
+      ofSize: titleFontSize,
+      weight: .regular
+    )
+    titleLabel.textColor = UIColor(
+      red: 17.0 / 255.0,
+      green: 17.0 / 255.0,
+      blue: 17.0 / 255.0,
+      alpha: 1.0
+    )
     titleLabel.textAlignment = .left
     titleLabel.numberOfLines = 2
     titleLabel.lineBreakMode = .byTruncatingTail
 
-    // 设置三角形
-    triangleView.backgroundColor = .white
-    triangleView.layer.cornerRadius = 2
-    triangleView.bounds = CGRect(x: 0, y: 0, width: 13, height: 13)
-    triangleView.transform = CGAffineTransform(rotationAngle: CGFloat.pi / 4)
+    pointView.backgroundColor = UIColor(
+      red: 1.0,
+      green: 0.68,
+      blue: 0.08,
+      alpha: 1.0
+    )
+    pointView.layer.borderColor = UIColor.white.cgColor
+    pointView.layer.borderWidth = plainPointBorderWidth
 
-    // 添加子视图
-    addSubview(containerView)
-    containerView.addSubview(triangleView)
-    containerView.addSubview(imageView)
-    containerView.addSubview(titleLabel)
+    countLabel.font = UIFont.systemFont(
+      ofSize: countFontSize,
+      weight: .semibold
+    )
+    countLabel.textColor = .white
+    countLabel.textAlignment = .center
+    countLabel.adjustsFontSizeToFitWidth = true
+    countLabel.minimumScaleFactor = 0.7
+    countLabel.isHidden = true
 
-    // 初始化为缩放状态，准备动画
-    containerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+    addSubview(displayContainerView)
+    displayContainerView.addSubview(bubbleView)
+    bubbleView.addSubview(blurView)
+    bubbleView.addSubview(titleLabel)
+    displayContainerView.addSubview(pointView)
+    pointView.addSubview(countLabel)
 
-    // 设置约束
+    displayContainerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
     setupConstraints()
   }
 
   private func setupConstraints() {
-    containerView.translatesAutoresizingMaskIntoConstraints = false
-    triangleView.translatesAutoresizingMaskIntoConstraints = false
-    imageView.translatesAutoresizingMaskIntoConstraints = false
+    displayContainerView.translatesAutoresizingMaskIntoConstraints = false
+    bubbleView.translatesAutoresizingMaskIntoConstraints = false
+    blurView.translatesAutoresizingMaskIntoConstraints = false
     titleLabel.translatesAutoresizingMaskIntoConstraints = false
+    pointView.translatesAutoresizingMaskIntoConstraints = false
+    countLabel.translatesAutoresizingMaskIntoConstraints = false
 
-    // 初始化动态宽高约束
-    containerWidthConstraint = containerView.widthAnchor.constraint(equalToConstant: maxContainerWidth)
-    containerHeightConstraint = containerView.heightAnchor.constraint(equalToConstant: maxContainerHeight)
+    bubbleWidthConstraint = bubbleView.widthAnchor.constraint(
+      equalToConstant: maxBubbleWidth
+    )
+    bubbleHeightConstraint = bubbleView.heightAnchor.constraint(
+      equalToConstant: maxBubbleHeight
+    )
+    pointWidthConstraint = pointView.widthAnchor.constraint(
+      equalToConstant: plainPointDiameter
+    )
+    pointHeightConstraint = pointView.heightAnchor.constraint(
+      equalToConstant: plainPointDiameter
+    )
 
     NSLayoutConstraint.activate([
-      // 容器视图约束
-      containerView.topAnchor.constraint(equalTo: topAnchor, constant: -maxContainerHeight / 2),
-      containerView.centerXAnchor.constraint(equalTo: centerXAnchor),
-      containerWidthConstraint,
-      containerHeightConstraint,
+      displayContainerView.leadingAnchor.constraint(equalTo: leadingAnchor),
+      displayContainerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+      displayContainerView.topAnchor.constraint(equalTo: topAnchor),
+      displayContainerView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-      // 三角形约束
-      triangleView.centerXAnchor.constraint(equalTo: centerXAnchor),
-      triangleView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -4),
-      triangleView.widthAnchor.constraint(equalToConstant: 8),
-      triangleView.heightAnchor.constraint(equalToConstant: 8),
+      pointView.centerXAnchor.constraint(
+        equalTo: displayContainerView.centerXAnchor
+      ),
+      pointView.centerYAnchor.constraint(
+        equalTo: displayContainerView.centerYAnchor
+      ),
+      pointWidthConstraint,
+      pointHeightConstraint,
 
-      // 图像视图约束
-      imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: imagePadding),
-      imageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-      imageView.widthAnchor.constraint(equalToConstant: imageWidth),
-      imageView.heightAnchor.constraint(equalToConstant: imageWidth),
+      bubbleView.centerXAnchor.constraint(equalTo: pointView.centerXAnchor),
+      bubbleView.bottomAnchor.constraint(
+        equalTo: pointView.topAnchor,
+        constant: -bubblePointGap
+      ),
+      bubbleWidthConstraint,
+      bubbleHeightConstraint,
 
-      // 标题标签约束
-      titleLabel.leadingAnchor.constraint(equalTo: imageView.trailingAnchor, constant: labelPadding),
-      titleLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
-      titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -labelPadding),
+      blurView.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor),
+      blurView.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor),
+      blurView.topAnchor.constraint(equalTo: bubbleView.topAnchor),
+      blurView.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor),
+
+      titleLabel.leadingAnchor.constraint(
+        equalTo: bubbleView.leadingAnchor,
+        constant: bubbleHorizontalPadding
+      ),
+      titleLabel.trailingAnchor.constraint(
+        equalTo: bubbleView.trailingAnchor,
+        constant: -bubbleHorizontalPadding
+      ),
+      titleLabel.topAnchor.constraint(
+        equalTo: bubbleView.topAnchor,
+        constant: bubbleVerticalPadding
+      ),
+      titleLabel.bottomAnchor.constraint(
+        equalTo: bubbleView.bottomAnchor,
+        constant: -bubbleVerticalPadding
+      ),
+
+      countLabel.leadingAnchor.constraint(
+        equalTo: pointView.leadingAnchor,
+        constant: countPointHorizontalPadding
+      ),
+      countLabel.trailingAnchor.constraint(
+        equalTo: pointView.trailingAnchor,
+        constant: -countPointHorizontalPadding
+      ),
+      countLabel.topAnchor.constraint(equalTo: pointView.topAnchor),
+      countLabel.bottomAnchor.constraint(equalTo: pointView.bottomAnchor),
     ])
   }
 
-  // 计算并更新容器尺寸
-  private func updateContainerSize(for text: String?) {
+  private func updateBubbleSize(for text: String?) {
     guard let text = text, !text.isEmpty else {
-      // 没有文本时，使用最小尺寸（仅图像+间距）
-      containerWidthConstraint.constant = imageWidth + 2 * imagePadding
-      containerHeightConstraint.constant = imageWidth + 2 * imagePadding
+      bubbleView.isHidden = true
+      bubbleWidthConstraint.constant = 0
+      bubbleHeightConstraint.constant = 0
       return
     }
 
-    // 计算文本尺寸
-    let maxTextWidth = maxContainerWidth - imageWidth - 2 * imagePadding - 2 * labelPadding
-    let maxTextHeight = maxContainerHeight - 2 * imagePadding
-    let textAttributes: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: fontSize, weight: .medium)]
+    bubbleView.isHidden = false
+    let maxTextWidth = maxBubbleWidth - 2 * bubbleHorizontalPadding
+    let maxTextHeight = maxBubbleHeight - 2 * bubbleVerticalPadding
+    let textAttributes: [NSAttributedString.Key: Any] = [
+      .font: titleLabel.font as Any,
+    ]
     let textSize = (text as NSString).boundingRect(
       with: CGSize(width: maxTextWidth, height: maxTextHeight),
       options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine],
@@ -139,57 +217,105 @@ class FlutterAnnotation2View: MKAnnotationView {
       context: nil
     ).size
 
-    // 计算容器宽度
-    let calculatedWidth = imageWidth + 2 * imagePadding + textSize.width + 2 * labelPadding
-    let newWidth = min(calculatedWidth, maxContainerWidth)
+    bubbleWidthConstraint.constant = min(
+      maxBubbleWidth,
+      max(0, ceil(textSize.width) + 2 * bubbleHorizontalPadding)
+    )
+    bubbleHeightConstraint.constant = min(
+      maxBubbleHeight,
+      max(minBubbleHeight, ceil(textSize.height) + 2 * bubbleVerticalPadding)
+    )
+  }
 
-    // 计算容器高度（考虑文本行数）
-    let lineHeight = titleLabel.font.lineHeight // 使用 titleLabel 的行高
-    let numberOfLines = min(ceil(textSize.height / lineHeight), 2) // 最多 2 行
-    let calculatedHeight = max(imageWidth, numberOfLines * lineHeight) + 2 * imagePadding
-    let newHeight = min(calculatedHeight, maxContainerHeight)
+  private func updatePoint(for count: Int?) {
+    let displayCount: String?
+    if let count = count, count >= 2 {
+      displayCount = String(count)
+    } else {
+      displayCount = nil
+    }
 
-    // 更新约束
-    containerWidthConstraint.constant = newWidth
-    containerHeightConstraint.constant = newHeight
+    countLabel.text = displayCount
+    countLabel.isHidden = displayCount == nil
+
+    let pointWidth: CGFloat
+    let pointHeight: CGFloat
+    if let displayCount = displayCount {
+      let textAttributes: [NSAttributedString.Key: Any] = [
+        .font: countLabel.font as Any,
+      ]
+      let textSize = (displayCount as NSString).size(withAttributes: textAttributes)
+      pointWidth = max(
+        countPointMinimumWidth,
+        ceil(textSize.width) + 2 * countPointHorizontalPadding
+      )
+      pointHeight = countPointHeight
+      pointView.layer.borderWidth = countPointBorderWidth
+    } else {
+      pointWidth = plainPointDiameter
+      pointHeight = plainPointDiameter
+      pointView.layer.borderWidth = plainPointBorderWidth
+    }
+
+    pointWidthConstraint.constant = pointWidth
+    pointHeightConstraint.constant = pointHeight
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    pointView.layer.cornerRadius = pointView.bounds.height / 2
+    bubbleView.layer.shadowPath = UIBezierPath(
+      roundedRect: bubbleView.bounds,
+      cornerRadius: bubbleView.layer.cornerRadius
+    ).cgPath
   }
 
   override func prepareForReuse() {
     super.prepareForReuse()
-    imageView.image = nil
     titleLabel.text = nil
-    imageView.backgroundColor = UIColor.clear
-    // 重置尺寸
-    containerWidthConstraint.constant = maxContainerWidth
-    containerHeightConstraint.constant = maxContainerHeight
-
-    // 重置缩放
-    containerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+    countLabel.text = nil
+    countLabel.isHidden = true
+    bubbleView.isHidden = false
+    bubbleWidthConstraint.constant = maxBubbleWidth
+    bubbleHeightConstraint.constant = maxBubbleHeight
+    pointWidthConstraint.constant = plainPointDiameter
+    pointHeightConstraint.constant = plainPointDiameter
+    pointView.layer.borderWidth = plainPointBorderWidth
+    displayContainerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
   }
 
   func configure(with annotation: FlutterAnnotation) {
     self.annotation = annotation
-    imageView.image = annotation.icon.image
     titleLabel.text = annotation.title
+    updateBubbleSize(for: annotation.title)
+    updatePoint(for: annotation.count)
+    setNeedsLayout()
+    layoutIfNeeded()
 
-    // 根据文本更新容器尺寸
-    updateContainerSize(for: annotation.title)
-
-    // 添加从小到大的动画
-    UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseInOut, animations: {
-      self.containerView.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
-    }, completion: nil)
+    UIView.animate(
+      withDuration: 0.3,
+      delay: 0,
+      usingSpringWithDamping: 0.6,
+      initialSpringVelocity: 0.5,
+      options: .curveEaseInOut,
+      animations: {
+        self.displayContainerView.transform = .identity
+      },
+      completion: nil
+    )
   }
 
   func updateSelected(with isSelected: Bool) {
-    UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .curveEaseInOut) {
-      if isSelected {
-        NSLog("更新视图 ☑️ 选中")
-        self.containerView.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
-      } else {
-        NSLog("更新视图 ❌ 未选中")
-        self.containerView.transform = CGAffineTransform(scaleX: 1, y: 1)
-      }
+    UIView.animate(
+      withDuration: 0.3,
+      delay: 0,
+      usingSpringWithDamping: 0.6,
+      initialSpringVelocity: 0.5,
+      options: .curveEaseInOut
+    ) {
+      self.displayContainerView.transform = isSelected
+        ? CGAffineTransform(scaleX: 1.3, y: 1.3)
+        : .identity
     }
   }
 }

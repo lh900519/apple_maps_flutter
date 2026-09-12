@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+* Added optional `Annotation.count` support for titled custom annotations.
+* Updated titled custom annotations to use a frosted title bubble and a point with optional quantity text.
+* **Breaking:** Raised the minimum iOS deployment target to 13.0.
+
 ## 1.4.0
 
 * Flutter 3.27.1 compatibility, replace `ui.hash*` with `Object.hash*

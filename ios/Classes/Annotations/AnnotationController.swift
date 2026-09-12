@@ -222,26 +222,32 @@ extension AppleMapController: AnnotationDelegate {
             return FlutterAnnotationView()
         }
         annotationView!.annotation = annotation
-        // If annotation is not visible set alpha to 0 and don't let the user interact with it
-        if !annotation.isVisible! {
-            annotationView!.canShowCallout = false
-            annotationView!.alpha = CGFloat(0.0)
-            annotationView!.isDraggable = false
-            return annotationView! as! FlutterAnnotationView
-        }
-        if annotation.icon.iconType != .MARKER {
+        if annotation.isVisible ?? true, annotation.icon.iconType != .MARKER {
             initInfoWindow(annotation: annotation, annotationView: annotationView!)
-            if annotation.icon.iconType != .PIN {
+            if annotationView is FlutterAnnotation2View {
+                annotationView!.centerOffset = .zero
+            } else if annotation.icon.iconType != .PIN {
                 let x = (0.5 - annotation.anchor.x) * Double(annotationView!.frame.size.width)
                 let y = (0.5 - annotation.anchor.y) * Double(annotationView!.frame.size.height)
                 annotationView!.centerOffset = CGPoint(x: x, y: y)
             }
         }
-        annotationView!.canShowCallout = annotation.canShowCallout ?? true
-        annotationView!.alpha = CGFloat(annotation.alpha ?? 1.00)
-        annotationView!.isDraggable = annotation.isDraggable ?? false
+        applyAnnotationViewProperties(annotationView!, annotation: annotation)
 
         return annotationView!
+    }
+
+    private func applyAnnotationViewProperties(_ annotationView: MKAnnotationView, annotation: FlutterAnnotation) {
+        guard annotation.isVisible ?? true else {
+            annotationView.canShowCallout = false
+            annotationView.alpha = 0.0
+            annotationView.isDraggable = false
+            return
+        }
+
+        annotationView.canShowCallout = annotation.canShowCallout ?? true
+        annotationView.alpha = CGFloat(annotation.alpha ?? 1.00)
+        annotationView.isDraggable = annotation.isDraggable ?? false
     }
 
     func annotationsToAdd(annotations: NSArray) {
@@ -370,6 +376,19 @@ extension AppleMapController: AnnotationDelegate {
 
     private func updateAnnotation(annotation: FlutterAnnotation) {
         if let oldAnnotation = getAnnotation(with: annotation.id) {
+            let oldUsesAnnotation2View = oldAnnotation.icon.iconType == .CUSTOM_FROM_ASSET || oldAnnotation.icon.iconType == .CUSTOM_FROM_BYTES
+                ? oldAnnotation.title?.isEmpty == false
+                : false
+            let newUsesAnnotation2View = annotation.icon.iconType == .CUSTOM_FROM_ASSET || annotation.icon.iconType == .CUSTOM_FROM_BYTES
+                ? annotation.title?.isEmpty == false
+                : false
+
+            if oldUsesAnnotation2View != newUsesAnnotation2View {
+                removeAnnotation(id: annotation.id)
+                addAnnotation(annotation: annotation)
+                return
+            }
+
             UIView.animate(withDuration: 0.32, animations: {
                 oldAnnotation.coordinate = annotation.coordinate
                 oldAnnotation.zIndex = annotation.zIndex
@@ -378,12 +397,23 @@ extension AppleMapController: AnnotationDelegate {
                 oldAnnotation.isVisible = annotation.isVisible
                 oldAnnotation.title = annotation.title
                 oldAnnotation.subtitle = annotation.subtitle
+                oldAnnotation.infoWindowConsumesTapEvents = annotation.infoWindowConsumesTapEvents
+                oldAnnotation.isDraggable = annotation.isDraggable
+                oldAnnotation.canShowCallout = annotation.canShowCallout
+                oldAnnotation.calloutOffset = annotation.calloutOffset
+                oldAnnotation.icon = annotation.icon
+                oldAnnotation.count = annotation.count
             })
 
-            // Update the annotation view with the new image
+            // Update the annotation view with the new data
             if let view = mapView.view(for: oldAnnotation) {
-                let newAnnotationView = getAnnotationView(annotation: annotation)
-                view.image = newAnnotationView.image
+                if let annotationView = view as? FlutterAnnotation2View {
+                    annotationView.configure(with: oldAnnotation)
+                } else {
+                    let newAnnotationView = getAnnotationView(annotation: annotation)
+                    view.image = newAnnotationView.image
+                }
+                applyAnnotationViewProperties(view, annotation: oldAnnotation)
             }
         }
     }
@@ -449,6 +479,7 @@ extension AppleMapController: AnnotationDelegate {
         annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: id, for: annotation) as! FlutterAnnotation2View
 
         annotationView.configure(with: annotation)
+        annotationView.centerOffset = .zero
 
         return annotationView
     }

@@ -80,6 +80,8 @@ class PlaceAnnotationBodyState extends State<PlaceAnnotationBody> {
     final AnnotationId annotationId = AnnotationId(annotationIdVal);
 
     var bitMapDescriptor;
+    String annotationTitle = annotationIdVal;
+    int? count;
 
     switch (iconType) {
       case 'marker':
@@ -90,6 +92,29 @@ class PlaceAnnotationBodyState extends State<PlaceAnnotationBody> {
         break;
       case 'customAnnotationFromBytes':
         bitMapDescriptor = _iconFromBytes;
+        break;
+      case 'customAnnotation':
+        if (_annotationIcon == null) {
+          return;
+        }
+        bitMapDescriptor = _annotationIcon!;
+        annotationTitle = 'Custom point';
+        break;
+      case 'customAnnotationCount2':
+        if (_annotationIcon == null) {
+          return;
+        }
+        bitMapDescriptor = _annotationIcon!;
+        annotationTitle = '2 个地点';
+        count = 2;
+        break;
+      case 'customAnnotationCount100':
+        if (_annotationIcon == null) {
+          return;
+        }
+        bitMapDescriptor = _annotationIcon!;
+        annotationTitle = '100 个地点';
+        count = 100;
         break;
       case 'markerAnnotationWithHue':
         bitMapDescriptor = BitmapDescriptor.markerAnnotationWithHue(
@@ -110,10 +135,11 @@ class PlaceAnnotationBodyState extends State<PlaceAnnotationBody> {
       ),
       zIndex: annotationCount.toDouble(),
       infoWindow: InfoWindow(
-          title: annotationIdVal,
+          title: annotationTitle,
           anchor: Offset(0.5, 0.0),
           snippet: '*',
           onTap: () => print('InfoWindow with id: $annotationId tapped.')),
+      count: count,
       onTap: () {
         _onAnnotationTapped(annotationId);
       },
@@ -288,6 +314,14 @@ class PlaceAnnotationBodyState extends State<PlaceAnnotationBody> {
                 TextButton(
                   child: const Text('add customAnnotation'),
                   onPressed: () => _add('customAnnotation'),
+                ),
+                TextButton(
+                  child: const Text('add custom point count 2'),
+                  onPressed: () => _add('customAnnotationCount2'),
+                ),
+                TextButton(
+                  child: const Text('add custom point count 100'),
+                  onPressed: () => _add('customAnnotationCount100'),
                 ),
                 TextButton(
                   child: const Text('customAnnotation from bytes'),

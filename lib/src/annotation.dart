@@ -155,6 +155,7 @@ class Annotation {
     this.onTap,
     this.visible = true,
     this.zIndex = -1,
+    this.count,
     this.onDragEnd,
   }) : assert(0.0 <= alpha && alpha <= 1.0);
 
@@ -196,6 +197,13 @@ class Annotation {
   /// True if the annotation is visible.
   final bool visible;
 
+  /// The number of locations represented by this annotation.
+  ///
+  /// A null value or a value of 1 is rendered as a plain point by the custom
+  /// titled annotation presentation. Values greater than 1 are rendered inside
+  /// the point.
+  final int? count;
+
   final ValueChanged<LatLng>? onDragEnd;
 
   /// The z-index of the annotation, used to determine relative drawing order of
@@ -218,6 +226,7 @@ class Annotation {
     LatLng? positionParam,
     bool? visibleParam,
     double? zIndexParam,
+    int? countParam,
     VoidCallback? onTapParam,
     ValueChanged<LatLng>? onDragEndParam,
   }) {
@@ -233,6 +242,7 @@ class Annotation {
       onTap: onTapParam ?? onTap,
       visible: visibleParam ?? visible,
       zIndex: zIndexParam ?? zIndex,
+      count: countParam ?? count,
       onDragEnd: onDragEndParam ?? onDragEnd,
     );
   }
@@ -256,6 +266,7 @@ class Annotation {
     addIfPresent('visible', visible);
     addIfPresent('position', position._toJson());
     addIfPresent('zIndex', zIndex);
+    addIfPresent('count', count);
     return json;
   }
 
@@ -273,6 +284,7 @@ class Annotation {
         infoWindow == typedOther.infoWindow &&
         position == typedOther.position &&
         visible == typedOther.visible &&
+        count == typedOther.count &&
         zIndex == typedOther.zIndex;
   }
 
@@ -283,22 +295,29 @@ class Annotation {
   String toString() {
     return 'Annotation{annotationId: $annotationId, alpha: $alpha, draggable: $draggable, '
         'icon: $icon, infoWindow: $infoWindow, position: $position ,visible: $visible, '
-        'onTap: $onTap}, zIndex: $zIndex, onTap: $onTap}';
+        'count: $count, onTap: $onTap}, zIndex: $zIndex, onTap: $onTap}';
   }
 }
 
 Map<AnnotationId, Annotation> _keyByAnnotationId(
-    Iterable<Annotation>? annotations) {
+  Iterable<Annotation>? annotations,
+) {
   if (annotations == null) {
     return <AnnotationId, Annotation>{};
   }
-  return Map<AnnotationId, Annotation>.fromEntries(annotations.map(
+  return Map<AnnotationId, Annotation>.fromEntries(
+    annotations.map(
       (Annotation annotation) => MapEntry<AnnotationId, Annotation>(
-          annotation.annotationId, annotation)));
+        annotation.annotationId,
+        annotation,
+      ),
+    ),
+  );
 }
 
 List<Map<String, dynamic>>? _serializeAnnotationSet(
-    Set<Annotation>? annotations) {
+  Set<Annotation>? annotations,
+) {
   if (annotations == null) {
     return null;
   }

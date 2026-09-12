@@ -18,6 +18,18 @@ This plugin was based on the `google_maps_flutter` plugin. Instead of reinventin
 
 To use this plugin on iOS you need to opt-in for the embedded views preview by adding a boolean property to the app's Info.plist file, with the key `io.flutter.embedded_views_preview` and the value `YES`. You will also have to add the key `Privacy - Location When In Use Usage Description` with the value of your usage description.
 
+The plugin requires iOS 13.0 or later. Titled custom annotations can provide an optional `count`; counts greater than 1 are displayed inside the annotation point, while an omitted count or a count of 1 displays a plain point.
+
+```dart
+Annotation(
+  annotationId: AnnotationId('places'),
+  icon: customIcon,
+  infoWindow: const InfoWindow(title: '100 个地点'),
+  count: 100,
+  position: const LatLng(39.9042, 116.4074),
+)
+```
+
 # Android
 
 There is no Android implementation, but there is a package combining apple_maps_flutter and the google_maps_flutter plugin to have the typical map implementations for Android/iOS called platform_maps_flutter.
