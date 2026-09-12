@@ -1,14 +1,66 @@
 # Changelog
 
-## Unreleased
+## 1.8.0
 
 * Added optional `Annotation.count` support for titled custom annotations.
 * Updated titled custom annotations to use a frosted title bubble and a point with optional quantity text.
 * **Breaking:** Raised the minimum iOS deployment target to 13.0.
 
+## 1.7.0
+
+* Added configurable iOS 16+ Apple map feature presentation.
+* Added elevation and emphasis styles, POI filters, and selectable map feature types.
+* Snapshots now preserve the map's current map type.
+
+## 1.6.2
+
+* Added `cityName` and `citywithContext` to Apple POI detail results.
+
+## 1.6.1
+
+* Hardened point-selection callbacks against invalid annotations returned by iOS 26.4+.
+
+## 1.6.0
+
+* Added polygon hole and mask mode for highlighting regions while dimming the surrounding map.
+
+## 1.5.1
+
+* Prevented crashes when iOS 26.4+ returns an invalid annotation during deselection callbacks.
+
+## 1.5.0
+
+* Added map route planning between two coordinates.
+
+## 1.4.5
+
+* Fixed dark-mode rendering for the map.
+
+## 1.4.4
+
+* Added deselection callbacks for native Apple map points.
+
+## 1.4.3
+
+* Added `AppleMapsStatic` reverse-geocoding and region-search helpers.
+* Added search-region priority and corrected `areasOfInterest` parsing.
+
+## 1.4.2
+
+* Refined titled custom annotation styling with dynamic text sizing and insertion animation.
+* Added selectable Apple map point callbacks and Apple POI detail models.
+* Added reverse-geocoding and region-search APIs with POI metadata such as icons, MUID, and provider ID.
+
+## 1.4.1
+
+* Added titled custom annotation views with custom callouts and selected-state animation.
+* Added `Annotation.canShowCallout` and improved annotation title and layout handling.
+* Added dark-mode support for map and snapshot rendering and expanded map type options.
+* Refined the user-tracking button layout.
+
 ## 1.4.0
 
-* Flutter 3.27.1 compatibility, replace `ui.hash*` with `Object.hash*
+* Flutter 3.27.1 compatibility, replace `ui.hash*` with `Object.hash*`
 
 ## 1.3.0
 
