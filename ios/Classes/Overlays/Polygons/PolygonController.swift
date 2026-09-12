@@ -20,7 +20,7 @@ extension AppleMapController: PolygonDelegate {
         if let flutterPolygon: FlutterPolygon = overlay as? FlutterPolygon {
           if flutterPolygon.isVisible! {
             if flutterPolygon.interiorPolygons != nil {
-              polygonRenderer.fillColor = UIColor.black.withAlphaComponent(0.5)
+              polygonRenderer.fillColor = UIColor.black.withAlphaComponent(0.3)
               polygonRenderer.strokeColor = UIColor.white.withAlphaComponent(0.7)
               polygonRenderer.lineWidth = 0.5
             } else {
@@ -40,15 +40,17 @@ extension AppleMapController: PolygonDelegate {
   
     // MARK: - 重建遮罩
     private func rebuildMaskOverlay() {
-        // 1. 移除旧的遮罩
+        // 1. 移除旧的遮罩和 hole 样式层
+        removeHoleOverlays()
         removeMaskPolygon()
         
-        // 如果没有高亮区域，不创建遮罩
-        guard !highlightPolygonMap.isEmpty else { return }
+        // 只将可见 hole 加入遮罩内环
+        let visibleHoles = highlightPolygonMap.values.filter { $0.isVisible ?? true }
+        guard !visibleHoles.isEmpty else { return }
         
-        // 2. 用当前所有高亮 polygon 作为内孔
+        // 2. 用当前所有可见 hole 作为内孔
         var worldCoords = createWorldCoverageCoordinates()
-        let interiorPolygons = Array(highlightPolygonMap.values)
+        let interiorPolygons = Array(visibleHoles)
         
         // 3. 创建新的遮罩 polygon
         let maskPolygon = FlutterPolygon(
@@ -60,6 +62,21 @@ extension AppleMapController: PolygonDelegate {
         maskPolygon.id = maskPolygonId
         
         addPolygon(polygon: maskPolygon)
+
+        // 4. 作为独立 overlay 叠加，使每个 hole 能使用自己的样式
+        for hole in visibleHoles {
+            addHoleOverlay(polygon: hole)
+        }
+    }
+
+    private func removeHoleOverlays() {
+        for overlay in Array(self.mapView.overlays) {
+            if let polygon = overlay as? FlutterPolygon,
+               polygon.hole,
+               polygon.id != maskPolygonId {
+                self.mapView.removeOverlay(polygon)
+            }
+        }
     }
     
     private func removeMaskPolygon() {
@@ -209,5 +226,10 @@ extension AppleMapController: PolygonDelegate {
         } else {
             self.mapView.insertOverlay(polygon, at: polygon.zIndex ?? 0)
         }
+    }
+
+    private func addHoleOverlay(polygon: FlutterPolygon) {
+        // Always append after the mask so the hole's fill and border remain visible.
+        self.mapView.addOverlay(polygon)
     }
 }
