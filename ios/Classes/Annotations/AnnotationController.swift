@@ -97,7 +97,11 @@ extension AppleMapController: AnnotationDelegate {
             currentlySelectedAnnotation = annotation.id
             if !annotation.selectedProgrammatically {
                 if !isAnnotationInFront(zIndex: annotation.zIndex) {
-                    moveToFront(annotation: annotation)
+                    if let annotationView = view as? FlutterAnnotation2View {
+                        moveToFront(annotation: annotation, view: annotationView)
+                    } else {
+                        moveToFront(annotation: annotation)
+                    }
                 }
                 onAnnotationClick(annotation: annotation)
             } else {
@@ -501,6 +505,13 @@ extension AppleMapController: AnnotationDelegate {
         channel.invokeMethod("annotation#onZIndexChanged", arguments: ["annotationId": id, "zIndex": annotation.zIndex])
         addAnnotation(annotation: annotation)
         selectAnnotation(with: id)
+    }
+
+    private func moveToFront(annotation: FlutterAnnotation, view: MKAnnotationView) {
+        let id: String = annotation.id
+        annotation.zIndex = getNextAnnotationZIndex()
+        channel.invokeMethod("annotation#onZIndexChanged", arguments: ["annotationId": id, "zIndex": annotation.zIndex])
+        view.superview?.bringSubviewToFront(view)
     }
 }
 

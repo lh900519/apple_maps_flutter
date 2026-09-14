@@ -261,6 +261,19 @@ class FlutterAnnotation2View: MKAnnotationView {
     pointHeightConstraint.constant = pointHeight
   }
 
+  private func updateAnnotationSize() {
+    let bubbleWidth = bubbleView.isHidden ? 0 : bubbleWidthConstraint.constant
+    let bubbleHeight = bubbleView.isHidden ? 0 : bubbleHeightConstraint.constant
+    let bubbleGap = bubbleView.isHidden ? 0 : bubblePointGap
+    let pointWidth = pointWidthConstraint.constant
+    let pointHeight = pointHeightConstraint.constant
+
+    bounds.size = CGSize(
+      width: max(bubbleWidth, pointWidth),
+      height: 2 * (bubbleHeight + bubbleGap) + pointHeight
+    )
+  }
+
   override func layoutSubviews() {
     super.layoutSubviews()
     pointView.layer.cornerRadius = pointView.bounds.height / 2
@@ -268,6 +281,16 @@ class FlutterAnnotation2View: MKAnnotationView {
       roundedRect: bubbleView.bounds,
       cornerRadius: bubbleView.layer.cornerRadius
     ).cgPath
+  }
+
+  override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+    guard bounds.contains(point) else {
+      return false
+    }
+
+    let contentPoint = displayContainerView.convert(point, from: self)
+    return (!bubbleView.isHidden && bubbleView.frame.contains(contentPoint))
+      || pointView.frame.contains(contentPoint)
   }
 
   override func prepareForReuse() {
@@ -281,6 +304,7 @@ class FlutterAnnotation2View: MKAnnotationView {
     pointWidthConstraint.constant = plainPointDiameter
     pointHeightConstraint.constant = plainPointDiameter
     pointView.layer.borderWidth = plainPointBorderWidth
+    bounds.size = CGSize(width: maxAnnotationWidth, height: maxAnnotationHeight)
     displayContainerView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
   }
 
@@ -289,6 +313,7 @@ class FlutterAnnotation2View: MKAnnotationView {
     titleLabel.text = annotation.title
     updateBubbleSize(for: annotation.title)
     updatePoint(for: annotation.count)
+    updateAnnotationSize()
     setNeedsLayout()
     layoutIfNeeded()
 
