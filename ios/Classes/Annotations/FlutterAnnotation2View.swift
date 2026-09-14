@@ -26,7 +26,7 @@ class FlutterAnnotation2View: MKAnnotationView {
   private let minBubbleHeight: CGFloat = 36
   private let bubbleHorizontalPadding: CGFloat = 8
   private let bubbleVerticalPadding: CGFloat = 4
-  private let bubblePointGap: CGFloat = 8
+  private let bubblePointGap: CGFloat = 3
   private let plainPointDiameter: CGFloat = 11
   private let plainPointBorderWidth: CGFloat = 2
   private let countPointHeight: CGFloat = 20
