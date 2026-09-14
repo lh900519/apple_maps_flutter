@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.1
+
+* Fixed Annotation2 hit testing and selection behavior for overlapping annotations.
+
 ## 1.8.0
 
 * Added optional `Annotation.count` support for titled custom annotations.
