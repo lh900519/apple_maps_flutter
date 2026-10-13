@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.0
+
+* Added `SnapshotOptions.fromView` to snapshot the map view as currently rendered, including masks, overlays and annotations.
+* Added `AppleMapController.getNativeCamera` and `setNativeCamera` to save and restore the viewport without zoom conversion loss; the restored camera is kept across layout changes.
+* Fixed a crash in `takeSnapshot` when the polygon hole mask is present, and draw mask holes with the even-odd fill rule.
+
 ## 1.8.1
 
 * Fixed Annotation2 hit testing and selection behavior for overlapping annotations.
