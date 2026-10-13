@@ -71,13 +71,36 @@ class FlutterMapView: MKMapView, UIGestureRecognizerDelegate {
     // To calculate the displayed region we have to get the layout bounds.
     // Because the self is layed out using an auto layout we have to call
     // setCenterCoordinate after the self was layed out.
+    /// 调用过 setNativeCamera 后为 true，布局变化时保留当前视野
+    var preservesCameraOnLayout = false
+    /// setNativeCamera 时视图尚未布局，等首次获得有效尺寸时再设置
+    var pendingNativeCamera: MKMapCamera?
+
+    /// 精确设置原生相机，并在之后的布局变化中保持该视野
+    func setNativeCamera(_ camera: MKMapCamera) {
+        preservesCameraOnLayout = true
+        if self.bounds.size == .zero {
+            pendingNativeCamera = camera
+        } else {
+            pendingNativeCamera = nil
+            self.setCamera(camera, animated: false)
+        }
+    }
+
     override func layoutSubviews() {
         // Only update the map in layoutSubviews if the bounds changed
         if self.bounds != oldBounds {
             if self.options != nil {
                 self.interpretOptions(options: self.options!)
             }
-            if #available(iOS 9.0, *) {
+            if preservesCameraOnLayout {
+                // 已通过 setNativeCamera 精确设置视野：布局变化时不再用 zoomLevel 重设镜头（换算有误差），
+                // 仅在设置时尚未布局的情况下补设一次
+                if let camera = pendingNativeCamera, self.bounds.size != .zero {
+                    self.setCamera(camera, animated: false)
+                    pendingNativeCamera = nil
+                }
+            } else if #available(iOS 9.0, *) {
                 setCenterCoordinateWithAltitude(centerCoordinate: centerCoordinate, zoomLevel: zoomLevel, animated: false)
                 mapContainerView = self.findViewOfType("MKScrollContainerView", inView: self)
             } else {

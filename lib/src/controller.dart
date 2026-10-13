@@ -244,6 +244,18 @@ class AppleMapController {
     return Offset(doubles.first, doubles.last);
   }
 
+  /// iOS：读取 MKMapView 当前的原生相机参数（latitude、longitude、distance、heading、pitch）。
+  ///
+  /// 与 [CameraPosition] 的 zoom 换算不同，原生参数可无损保存并通过 [setNativeCamera] 精确还原视野。
+  Future<Map<String, double>?> getNativeCamera() {
+    return channel.invokeMapMethod<String, double>('camera#getNative');
+  }
+
+  /// iOS：用 [getNativeCamera] 返回的参数无动画地还原视野。
+  Future<void> setNativeCamera(Map<String, double> camera) {
+    return channel.invokeMethod<void>('camera#setNative', camera);
+  }
+
   /// Returns the image bytes of the map
   Future<Uint8List?> takeSnapshot(
       [SnapshotOptions snapshotOptions = const SnapshotOptions()]) {

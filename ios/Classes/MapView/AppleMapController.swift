@@ -79,6 +79,19 @@ public class AppleMapController: NSObject, FlutterPlatformView {
         channel.setMethodCallHandler({ [unowned self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             if let args: Dictionary<String, Any> = call.arguments as? Dictionary<String,Any> {
                 switch(call.method) {
+                case "camera#setNative":
+                    if let latitude = args["latitude"] as? Double,
+                       let longitude = args["longitude"] as? Double,
+                       let distance = args["distance"] as? Double {
+                        let camera = MKMapCamera(
+                            lookingAtCenter: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+                            fromDistance: distance,
+                            pitch: CGFloat(args["pitch"] as? Double ?? 0),
+                            heading: args["heading"] as? Double ?? 0
+                        )
+                        self.mapView.setNativeCamera(camera)
+                    }
+                    result(nil)
                 case "annotations#update":
                     self.annotationUpdate(args: args)
                     result(nil)
@@ -137,6 +150,15 @@ public class AppleMapController: NSObject, FlutterPlatformView {
                 case "map#getVisibleRegion":
                     result(self.mapView.getVisibleRegion())
                     break
+                case "camera#getNative":
+                    let camera = self.mapView.camera
+                    result([
+                        "latitude": camera.centerCoordinate.latitude,
+                        "longitude": camera.centerCoordinate.longitude,
+                        "distance": camera.centerCoordinateDistance,
+                        "heading": camera.heading,
+                        "pitch": Double(camera.pitch),
+                    ])
                 case "map#isCompassEnabled":
                     if #available(iOS 9.0, *) {
                         result(self.mapView.showsCompass)
