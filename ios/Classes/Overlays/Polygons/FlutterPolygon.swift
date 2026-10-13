@@ -56,29 +56,49 @@ extension FlutterPolygon: FlutterOverlay {
     func getCAShapeLayer(snapshot: MKMapSnapshotter.Snapshot) -> CAShapeLayer {
         let path = UIBezierPath()
         let shapeLayer = CAShapeLayer()
-        
-        if !(self.isVisible ?? true) {
+
+        if !(self.isVisible ?? true) || self.pointCount == 0 {
             return shapeLayer
         }
-            
 
+        // 使用 MKPolygon 自身的点而不是 coordinates：遮罩多边形通过
+        // init(coordinates:count:interiorPolygons:) 创建，coordinates 为 nil。
         // Thus we use snapshot.point() to save the pain.
-        path.move(to: snapshot.point(for: self.coordinates![0]))
-        for coordinate in self.coordinates! {
-            path.addLine(to: snapshot.point(for: coordinate))
+        FlutterPolygon.appendRing(of: self, to: path, snapshot: snapshot)
+
+        // 内环（已点亮区域）配合 even-odd 填充规则镂空，与地图上的遮罩一致
+        for interior in self.interiorPolygons ?? [] {
+            FlutterPolygon.appendRing(of: interior, to: path, snapshot: snapshot)
         }
-        
-        path.addLine(to: snapshot.point(for: self.coordinates![0]))
-        path.close()
-        
+
         shapeLayer.path = path.cgPath
-        shapeLayer.lineWidth = self.width ?? 0
-        shapeLayer.strokeColor = self.strokeColor?.cgColor ?? UIColor.clear.cgColor
-        shapeLayer.fillColor = self.fillColor?.cgColor ?? UIColor.clear.cgColor
+        shapeLayer.fillRule = .evenOdd
         shapeLayer.lineCap = .round
         shapeLayer.lineJoin = .round
-        
+
+        if self.interiorPolygons != nil {
+            // 与 PolygonController.polygonRenderer 中遮罩的样式保持一致
+            shapeLayer.fillColor = UIColor.black.withAlphaComponent(0.3).cgColor
+            shapeLayer.strokeColor = UIColor.white.withAlphaComponent(0.7).cgColor
+            shapeLayer.lineWidth = 0.5
+        } else {
+            shapeLayer.lineWidth = self.width ?? 0
+            shapeLayer.strokeColor = self.strokeColor?.cgColor ?? UIColor.clear.cgColor
+            shapeLayer.fillColor = self.fillColor?.cgColor ?? UIColor.clear.cgColor
+        }
+
         return shapeLayer
+    }
+
+    private static func appendRing(of polygon: MKPolygon, to path: UIBezierPath, snapshot: MKMapSnapshotter.Snapshot) {
+        let count = polygon.pointCount
+        guard count > 0 else { return }
+        let points = polygon.points()
+        path.move(to: snapshot.point(for: points[0].coordinate))
+        for i in 1..<count {
+            path.addLine(to: snapshot.point(for: points[i].coordinate))
+        }
+        path.close()
     }
 }
 
