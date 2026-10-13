@@ -341,6 +341,10 @@ extension AppleMapController: MKMapViewDelegate {
 
 extension AppleMapController {
     private func takeSnapshot(options: SnapshotOptions, onCompletion: @escaping (FlutterStandardTypedData?, Error?) -> Void) {
+        if options.fromView {
+            takeViewSnapshot(onCompletion: onCompletion)
+            return
+        }
         // MKMapSnapShotOptions setting.
         snapShotOptions.region = self.mapView.region
         snapShotOptions.size = self.mapView.frame.size
@@ -401,6 +405,20 @@ extension AppleMapController {
         }
     }
     
+    /// 直接渲染地图视图当前画面。MKMapSnapshotter 会重新渲染底图并由插件逐点绘制覆盖层，
+    /// 无法正确处理跨 180° 经线、覆盖全球的遮罩等图形；视图渲染与屏幕显示完全一致。
+    private func takeViewSnapshot(onCompletion: @escaping (FlutterStandardTypedData?, Error?) -> Void) {
+        let bounds = self.mapView.bounds
+        guard bounds.width > 0, bounds.height > 0, self.mapView.window != nil else {
+            onCompletion(nil, nil)
+            return
+        }
+        let image = UIGraphicsImageRenderer(bounds: bounds).image { _ in
+            _ = self.mapView.drawHierarchy(in: bounds, afterScreenUpdates: false)
+        }
+        onCompletion(image.pngData().map { FlutterStandardTypedData(bytes: $0) }, nil)
+    }
+
     private func drawAnnotations(annotation: FlutterAnnotation?, point: CGPoint) {
         guard annotation != nil else {
             return
