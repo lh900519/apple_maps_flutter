@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.1
+
+* Added `Annotation.selectable` (default `true`). Non-selectable annotations are never selected and do not trigger `onTap` or the point selection callbacks; touches pass through so map features beneath them can still be selected.
+* `AppleMap.onTap` is no longer called for taps that land on a visible annotation.
+
 ## 1.9.0
 
 * Added `SnapshotOptions.fromView` to snapshot the map view as currently rendered, including masks, overlays and annotations.

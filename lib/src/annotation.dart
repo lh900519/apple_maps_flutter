@@ -143,6 +143,7 @@ class Annotation {
   /// * has no info window text; [infoWindowText] is `InfoWindowText.noText`
   /// * is positioned at 0, 0; [position] is `LatLng(0.0, 0.0)`
   /// * is visible; [visible] is true
+  /// * is selectable; [selectable] is true
   Annotation({
     required this.annotationId,
     this.alpha = 1.0,
@@ -154,6 +155,7 @@ class Annotation {
     this.position = const LatLng(0.0, 0.0),
     this.onTap,
     this.visible = true,
+    this.selectable = true,
     this.zIndex = -1,
     this.count,
     this.onDragEnd,
@@ -197,6 +199,13 @@ class Annotation {
   /// True if the annotation is visible.
   final bool visible;
 
+  /// True if the annotation can be selected by user touch events.
+  ///
+  /// When false, the annotation is never selected, so neither [onTap] nor the
+  /// map's point selection callbacks fire for it. Touches pass through to the
+  /// map, so map features beneath the annotation can still be selected.
+  final bool selectable;
+
   /// The number of locations represented by this annotation.
   ///
   /// A null value or a value of 1 is rendered as a plain point by the custom
@@ -225,6 +234,7 @@ class Annotation {
     InfoWindow? infoWindowParam,
     LatLng? positionParam,
     bool? visibleParam,
+    bool? selectableParam,
     double? zIndexParam,
     int? countParam,
     VoidCallback? onTapParam,
@@ -241,6 +251,7 @@ class Annotation {
       position: positionParam ?? position,
       onTap: onTapParam ?? onTap,
       visible: visibleParam ?? visible,
+      selectable: selectableParam ?? selectable,
       zIndex: zIndexParam ?? zIndex,
       count: countParam ?? count,
       onDragEnd: onDragEndParam ?? onDragEnd,
@@ -264,6 +275,7 @@ class Annotation {
     addIfPresent('canShowCallout', canShowCallout);
     addIfPresent('infoWindow', infoWindow._toJson());
     addIfPresent('visible', visible);
+    addIfPresent('selectable', selectable);
     addIfPresent('position', position._toJson());
     addIfPresent('zIndex', zIndex);
     addIfPresent('count', count);
@@ -284,6 +296,7 @@ class Annotation {
         infoWindow == typedOther.infoWindow &&
         position == typedOther.position &&
         visible == typedOther.visible &&
+        selectable == typedOther.selectable &&
         count == typedOther.count &&
         zIndex == typedOther.zIndex;
   }
@@ -294,7 +307,7 @@ class Annotation {
   @override
   String toString() {
     return 'Annotation{annotationId: $annotationId, alpha: $alpha, draggable: $draggable, '
-        'icon: $icon, infoWindow: $infoWindow, position: $position ,visible: $visible, '
+        'icon: $icon, infoWindow: $infoWindow, position: $position ,visible: $visible, selectable: $selectable, '
         'count: $count, onTap: $onTap}, zIndex: $zIndex, onTap: $onTap}';
   }
 }

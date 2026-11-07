@@ -123,6 +123,8 @@ class AppleMap extends StatefulWidget {
   final VoidCallback? onCameraIdle;
 
   /// Called every time a [AppleMap] is tapped.
+  ///
+  /// Not called for taps that land on a visible annotation.
   final ArgumentCallback<LatLng>? onTap;
 
   /// Called every time a [AppleMap] is long pressed.

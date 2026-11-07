@@ -242,6 +242,10 @@ extension AppleMapController: AnnotationDelegate {
     }
 
     private func applyAnnotationViewProperties(_ annotationView: MKAnnotationView, annotation: FlutterAnnotation) {
+        // Non-selectable annotations are never selected and let touches pass through,
+        // so map features beneath them can still be selected.
+        annotationView.isEnabled = annotation.isSelectable
+        annotationView.isUserInteractionEnabled = annotation.isSelectable
         guard annotation.isVisible ?? true else {
             annotationView.canShowCallout = false
             annotationView.alpha = 0.0
@@ -399,6 +403,7 @@ extension AppleMapController: AnnotationDelegate {
                 oldAnnotation.anchor = annotation.anchor
                 oldAnnotation.alpha = annotation.alpha
                 oldAnnotation.isVisible = annotation.isVisible
+                oldAnnotation.isSelectable = annotation.isSelectable
                 oldAnnotation.title = annotation.title
                 oldAnnotation.subtitle = annotation.subtitle
                 oldAnnotation.infoWindowConsumesTapEvents = annotation.infoWindowConsumesTapEvents
